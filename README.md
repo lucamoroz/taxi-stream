@@ -1,7 +1,7 @@
 
 ![DSG](./docs/dsg_logo.png)
 
-# Advanced Internet Computing WS 2019 - Group x Topic x
+# Advanced Internet Computing WS 2020 - Group x Topic x
 
 This template is intended to serve as an *example* on how you might want to structure the README when submitting your project.
 
