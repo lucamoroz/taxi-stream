@@ -20,6 +20,7 @@ public class ConsoleBolt extends BaseRichBolt {
         System.out.println("Id: " + input.getInteger(0));
         System.out.println("X: " + input.getInteger(1));
         System.out.println("Y: " + input.getInteger(2));
+        _collector.ack(input);
     }
 
     @Override

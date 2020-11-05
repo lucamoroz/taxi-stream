@@ -6,12 +6,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="ApacheStorm" />
-        <module name="storm-starter" />
+        <module name="Apache-Storm-Learning" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="ApacheStorm" target="1.8" />
+      <module name="storm-starter" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

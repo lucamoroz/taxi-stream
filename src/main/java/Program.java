@@ -1,26 +1,28 @@
+import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
-import org.apache.storm.generated.StormTopology;
 import org.apache.storm.topology.ConfigurableTopology;
 import org.apache.storm.topology.TopologyBuilder;
 
-public class Program extends ConfigurableTopology{
+import java.util.HashMap;
+
+public class Program {
     public static void main(String[] args) {
-        ConfigurableTopology.start(new Program(), args);
-    }
+        try (LocalCluster cluster = new LocalCluster()) {
+            TopologyBuilder topoBuilder = new TopologyBuilder();
+            topoBuilder.setSpout("dataProvider", new DataProvider());
+            topoBuilder.setBolt("consoleBolt", new ConsoleBolt())
+                    .shuffleGrouping("dataProvider");
 
-    @Override
-    protected int run(String[] args) throws Exception {
-        TopologyBuilder topoBuilder = new TopologyBuilder();
-        topoBuilder.setSpout("dataProvider", new DataProvider());
-        topoBuilder.setBolt("consoleBolt", new ConsoleBolt())
-                .shuffleGrouping("dataProvider");
+            Config config = new Config();
+            config.setDebug(true);
 
-        conf.setDebug(true);
+            String topologyName = "geilomatiko";
 
-        String topologyName = "word-count";
-
-        conf.setNumWorkers(3);
-
-        return submit(topologyName,conf, topoBuilder);
+            cluster.submitTopology("Program", config, topoBuilder.createTopology());
+            Thread.sleep(10000);
+            cluster.shutdown();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
