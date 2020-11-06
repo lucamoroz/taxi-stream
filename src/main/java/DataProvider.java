@@ -23,7 +23,8 @@ public class DataProvider extends BaseRichSpout {
     @Override
     public void nextTuple() {
         Utils.sleep(1000);
-        _collector.emit(new Values(1, 20, 4));
+        Random rand = new Random();
+        _collector.emit(new Values(1, rand.nextInt(101), rand.nextInt(101)));
     }
 
     @Override

@@ -18,13 +18,10 @@ public class ConsoleBolt extends BaseRichBolt {
     @Override
     public void execute(Tuple input) {
         System.out.println("Id: " + input.getInteger(0));
-        System.out.println("X: " + input.getInteger(1));
-        System.out.println("Y: " + input.getInteger(2));
-        _collector.ack(input);
+        System.out.println("Total Distance: " + input.getInteger(1));
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields());
     }
 }
