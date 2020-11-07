@@ -9,7 +9,11 @@ where `PATH_TO_DATASET` is the path to the folder containing the `.txt` log file
 `docker build -t aic/dataemitter .`
 
 # Run
+` sudo docker run --mount type=bind,source="$(pwd)"/data/logs.txt,target=/data/logs.txt,readonly aic/dataemitter`
 
-`sudo docker run -v data:/data aic/dataemitter python main.py [SPEED_MULTIPLIER]`
+To change the speed of emission run:
 
-Where `SPEED_MULTIPLIER` controls how fast the logs are emitted (e.g. with `SPEED_MULTIPLIER`=2 the speed is doubled).
+`sudo docker run --mount type=bind,source="$(pwd)"/data/logs.txt,target=/data/logs.txt,readonly aic/dataemitter python main.py
+ [SPEED_MULTIPLIER]`
+
+Where `[SPEED_MULTIPLIER]` controls how fast the logs are emitted (e.g. with `SPEED_MULTIPLIER`=2 the speed is doubled).
