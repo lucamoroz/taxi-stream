@@ -6,6 +6,7 @@ import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 
 import java.util.HashMap;
+import spouts.NotifyLeavingAreaSpout;
 
 public class Program {
     public static void main(String[] args) {
@@ -20,7 +21,8 @@ public class Program {
             topoBuilder.setBolt("consoleBolt", new ConsoleBolt())
                     .shuffleGrouping("distanceBolt");
 
-            topoBuilder.setSpout("notifyLeavingAreaSpout", new DataProvider());
+
+            topoBuilder.setSpout("notifyLeavingAreaSpout", new NotifyLeavingAreaSpout());
             topoBuilder.setBolt("notifyLeavingAreaBolt", new NotifyLeavingAreaBolt())
                 .fieldsGrouping("notifyLeavingAreaSpout", new Fields("id"));
             //TODO: add notify Speeding Bolt from "Calculate Speed" bolt
