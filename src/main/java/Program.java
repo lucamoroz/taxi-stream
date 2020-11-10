@@ -1,3 +1,4 @@
+import bolts.NotifyLeavingAreaBolt;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.topology.ConfigurableTopology;
@@ -18,6 +19,11 @@ public class Program {
                     .fieldsGrouping("dataProvider", new Fields("id"));
             topoBuilder.setBolt("consoleBolt", new ConsoleBolt())
                     .shuffleGrouping("distanceBolt");
+
+            topoBuilder.setSpout("notifyLeavingAreaSpout", new DataProvider());
+            topoBuilder.setBolt("notifyLeavingAreaBolt", new NotifyLeavingAreaBolt())
+                .fieldsGrouping("notifyLeavingAreaSpout", new Fields("id"));
+            //TODO: add notify Speeding Bolt from "Calculate Speed" bolt
 
             Config config = new Config();
             config.setDebug(false);

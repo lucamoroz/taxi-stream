@@ -9,7 +9,7 @@ import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Tuple;
 
-public class notifyLeavingAreaBolt extends BaseRichBolt {
+public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
     OutputCollector outputCollector;
     Map<Integer, Integer> idNotificationMap;

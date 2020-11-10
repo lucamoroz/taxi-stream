@@ -8,7 +8,7 @@ import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Tuple;
 
-public class notifySpeedingBolt extends BaseRichBolt {
+public class NotifySpeedingBolt extends BaseRichBolt {
 
     OutputCollector outputCollector;
     Map<Integer, Integer> idNotificationMap;
