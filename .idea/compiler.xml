@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Apache-Storm-Learning" />
+        <module name="g7t1" />
         <module name="storm-example" />
       </profile>
     </annotationProcessing>
