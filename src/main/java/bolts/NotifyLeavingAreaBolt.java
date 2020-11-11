@@ -26,13 +26,21 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         //0 ... id of the notification
         //1 ... id of the taxi
         int idNotification = tuple.getInteger(0);
-        int idTaxi = tuple.getInteger(1);
 
         if(!idNotificationMap.containsKey(idNotification)){
+            int idTaxi = tuple.getInteger(1);
+            //TODO: calcualte distance
+            Integer distanceToBeijingCenter = 0; //set the distance to Beijing center in km
+
+
             idNotificationMap.put(idNotification, idTaxi);
 
-            System.out.println("Taxi " + idTaxi + " is leaving a predefined area, implement http notification!");
-            //TODO: implement frontend notification
+            if (distanceToBeijingCenter > 10){
+                //Inform the frontend
+                System.out.println("Taxi " + idTaxi + " is leaving a predefined area, implement http notification!");
+                //TODO: implement frontend notification
+
+            }
         }
 
     }
