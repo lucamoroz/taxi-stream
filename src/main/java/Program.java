@@ -9,20 +9,20 @@ public class Program {
     public static void main(String[] args) {
         LocalCluster cluster = null;
 
+        JedisPoolConfig poolConfig = new JedisPoolConfig.Builder()
+                .setHost("redis").setPort(6379).build();
+
+        TopologyBuilder topoBuilder = new TopologyBuilder();
+        topoBuilder.setSpout("dataProvider", new DataProvider());
+        topoBuilder.setBolt("distanceBolt", new DistanceBolt())
+                .fieldsGrouping("dataProvider", new Fields("id"));
+        topoBuilder.setBolt("updateLocationBolt", new UpdateLocationBolt(poolConfig))
+                .fieldsGrouping("dataProvider", new Fields("id"));
+        topoBuilder.setBolt("consoleBolt", new ConsoleBolt())
+                .shuffleGrouping("distanceBolt");
+
         try {
             cluster = new LocalCluster();
-
-            JedisPoolConfig poolConfig = new JedisPoolConfig.Builder()
-                    .setHost("redis").setPort(6379).build();
-
-            TopologyBuilder topoBuilder = new TopologyBuilder();
-            topoBuilder.setSpout("dataProvider", new DataProvider());
-            topoBuilder.setBolt("distanceBolt", new DistanceBolt())
-                    .fieldsGrouping("dataProvider", new Fields("id"));
-            topoBuilder.setBolt("updateLocationBolt", new UpdateLocationBolt(poolConfig))
-                    .shuffleGrouping("dataProvider");
-            topoBuilder.setBolt("consoleBolt", new ConsoleBolt())
-                    .shuffleGrouping("distanceBolt");
 
             Config config = new Config();
             config.setDebug(false);
@@ -30,6 +30,7 @@ public class Program {
             cluster.submitTopology("Program", config, topoBuilder.createTopology());
             Thread.sleep(20000);
             cluster.shutdown();
+
         } catch (Exception e) {
             e.printStackTrace();
         }

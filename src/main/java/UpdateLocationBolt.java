@@ -19,11 +19,16 @@ public class UpdateLocationBolt extends AbstractRedisBolt {
     @Override
     protected void process(Tuple input) {
         System.out.println("UpdateLocationBolt received: " + input.toString());
+
+        int taxiId = input.getInteger(0);
+        double latitude = input.getDouble(1);
+        double longitude = input.getDouble(2);
+
         JedisCommands jedisCommands = null;
         try {
             jedisCommands = getInstance();
-
-            jedisCommands.hset("taxiid", "currentLocation", "location");
+            // todo define location format
+            jedisCommands.hset(String.valueOf(taxiId), "location", String.format("%.6f, %.6f", latitude, longitude));
 
         } finally {
             if (jedisCommands != null) {
