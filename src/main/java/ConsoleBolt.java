@@ -18,7 +18,7 @@ public class ConsoleBolt extends BaseRichBolt {
     @Override
     public void execute(Tuple input) {
         System.out.println("Id: " + input.getInteger(0));
-        System.out.println("Total Distance: " + input.getInteger(1));
+        System.out.println("Total Distance: " + input.getDouble(1));
     }
 
     @Override
