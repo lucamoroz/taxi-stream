@@ -1,22 +1,20 @@
-.PHONY: all build run logs kill clean
 
-image_name = storm-aic7
-container_name = storm-container
-
-all: build run logs
+start: build run
 
 build:
-	docker build -t $(image_name) .
+	docker-compose build
 
 run:
-	docker run -d --rm --name $(container_name) $(image_name)
+	docker-compose up -d
 
 logs:
-	docker logs -f $(container_name)
+	docker-compose logs -f
+
+stop:
+	docker-compose stop
 
 kill:
-	docker kill $(container_name)
+	docker-compose kill
 
 clean:
-	docker image prune -f
-	docker image rm $(image_name)
+	docker-compose down -v --rmi all --remove-orphans
