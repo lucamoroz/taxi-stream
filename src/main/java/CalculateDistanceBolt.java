@@ -13,10 +13,12 @@ import java.util.Map;
 public class CalculateDistanceBolt extends BaseRichBolt {
     OutputCollector _collector;
     Map<Integer, Object[]> overallDistances = new HashMap<Integer, Object[]>();
+    Logger logger;
 
     @Override
     public void prepare(Map<String, Object> topoConf, TopologyContext context, OutputCollector collector) {
         _collector = collector;
+        logger = new Logger("CalculateDistanceBolt");
     }
 
     @Override
@@ -35,7 +37,7 @@ public class CalculateDistanceBolt extends BaseRichBolt {
 
         overallDistances.put(id, new Object[]{currentOverallDistance, currentLog});
         _collector.emit(new Values(id, currentOverallDistance));
-        System.out.println("dist: " + currentOverallDistance);
+        logger.log("dist: " + currentOverallDistance);
     }
 
     @Override

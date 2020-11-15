@@ -13,10 +13,12 @@ import java.util.Map;
 public class CalculateSpeedBolt extends BaseRichBolt {
     OutputCollector _collector;
     Map<Integer, TaxiLog> lastLogs = new HashMap<Integer, TaxiLog>();
+    Logger logger;
 
     @Override
     public void prepare(Map<String, Object> topoConf, TopologyContext context, OutputCollector collector) {
         _collector = collector;
+        logger = new Logger("CalculateSpeedBolt");
     }
 
     @Override
@@ -34,9 +36,8 @@ public class CalculateSpeedBolt extends BaseRichBolt {
             double speed = distance/timeDiff;
 
             _collector.emit(new Values(id, speed));
-            System.out.println("speed: " + speed);
+            logger.log("speed: " + speed);
         }
-
         lastLogs.put(id, currentLog);
     }
 

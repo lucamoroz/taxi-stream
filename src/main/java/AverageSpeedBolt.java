@@ -14,10 +14,12 @@ import java.util.Map;
 public class AverageSpeedBolt extends BaseRichBolt {
     OutputCollector _collector;
     Map<Integer, List<Double>> lastSpeeds = new HashMap<Integer, List<Double>>();
+    Logger logger;
 
     @Override
     public void prepare(Map<String, Object> topoConf, TopologyContext context, OutputCollector collector) {
         _collector = collector;
+        logger = new Logger("AverageSpeedBolt");
     }
 
     @Override
@@ -35,7 +37,7 @@ public class AverageSpeedBolt extends BaseRichBolt {
 
         speeds.add(speed);
         double averageSpeed = speeds.stream().reduce(0d, (total, element) -> total + element) / speeds.size();
-        System.out.println("avg: " + averageSpeed);
+        logger.log("avg: " + averageSpeed);
         _collector.emit(new Values(id, averageSpeed));
 
     }
