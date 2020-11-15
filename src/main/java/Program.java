@@ -16,12 +16,10 @@ public class Program {
         topoBuilder.setSpout("dataProvider", new DataProvider());
         topoBuilder.setBolt("calculateSpeedBolt", new CalculateSpeedBolt())
                 .fieldsGrouping("dataProvider", new Fields("id"));
-        topoBuilder.setBolt("distanceBolt", new DistanceBolt())
-                .fieldsGrouping("dataProvider", new Fields("id"));
+        topoBuilder.setBolt("averageSpeedBolt", new AverageSpeedBolt())
+                .fieldsGrouping("calculateSpeedBolt", new Fields("id"));
         topoBuilder.setBolt("updateLocationBolt", new UpdateLocationBolt(poolConfig))
                 .fieldsGrouping("dataProvider", new Fields("id"));
-        topoBuilder.setBolt("consoleBolt", new ConsoleBolt())
-                .shuffleGrouping("distanceBolt");
 
         try {
             cluster = new LocalCluster();
