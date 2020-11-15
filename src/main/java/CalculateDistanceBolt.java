@@ -10,9 +10,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CalculateSpeedBolt extends BaseRichBolt {
+public class CalculateDistanceBolt extends BaseRichBolt {
     OutputCollector _collector;
-    Map<Integer, TaxiLog> lastLogs = new HashMap<Integer, TaxiLog>();
+    Map<Integer, Object[]> overallDistances = new HashMap<Integer, Object[]>();
 
     @Override
     public void prepare(Map<String, Object> topoConf, TopologyContext context, OutputCollector collector) {
@@ -24,24 +24,22 @@ public class CalculateSpeedBolt extends BaseRichBolt {
         int id = input.getInteger(0);
         TaxiLog currentLog = new TaxiLog(new Date(), input.getDouble(1), input.getDouble(2));
 
-        if (lastLogs.containsKey(id)) {
-            TaxiLog lastLog = lastLogs.get(id);
+        double currentOverallDistance = 0;
 
-            double distance = CoordinateHelper.calculateDistance(lastLog, currentLog);
+        if (overallDistances.containsKey(id)) {
+            currentOverallDistance = (double) overallDistances.get(id)[0];
+            TaxiLog lastLog = (TaxiLog) overallDistances.get(id)[1];
 
-            long timeDiff = currentLog.getTimestamp().getTime() - lastLog.getTimestamp().getTime();
-
-            double speed = distance/timeDiff;
-
-            _collector.emit(new Values(id, speed));
-            System.out.println("speed: " + speed);
+            currentOverallDistance += CoordinateHelper.calculateDistance(lastLog, currentLog);
         }
 
-        lastLogs.put(id, currentLog);
+        overallDistances.put(id, new Object[]{currentOverallDistance, currentLog});
+        _collector.emit(new Values(id, currentOverallDistance));
+        System.out.println("dist: " + currentOverallDistance);
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("id", "speed"));
+        declarer.declare(new Fields("id", "distance"));
     }
 }

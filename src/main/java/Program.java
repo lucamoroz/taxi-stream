@@ -14,10 +14,15 @@ public class Program {
 
         TopologyBuilder topoBuilder = new TopologyBuilder();
         topoBuilder.setSpout("dataProvider", new DataProvider());
+
         topoBuilder.setBolt("calculateSpeedBolt", new CalculateSpeedBolt())
                 .fieldsGrouping("dataProvider", new Fields("id"));
         topoBuilder.setBolt("averageSpeedBolt", new AverageSpeedBolt())
                 .fieldsGrouping("calculateSpeedBolt", new Fields("id"));
+
+        topoBuilder.setBolt("calculateDistanceBolt", new CalculateDistanceBolt())
+                .fieldsGrouping("dataProvider", new Fields("id"));
+
         topoBuilder.setBolt("updateLocationBolt", new UpdateLocationBolt(poolConfig))
                 .fieldsGrouping("dataProvider", new Fields("id"));
 
