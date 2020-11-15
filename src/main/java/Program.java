@@ -14,6 +14,8 @@ public class Program {
 
         TopologyBuilder topoBuilder = new TopologyBuilder();
         topoBuilder.setSpout("dataProvider", new DataProvider());
+        topoBuilder.setBolt("calculateSpeedBolt", new CalculateSpeedBolt())
+                .fieldsGrouping("dataProvider", new Fields("id"));
         topoBuilder.setBolt("distanceBolt", new DistanceBolt())
                 .fieldsGrouping("dataProvider", new Fields("id"));
         topoBuilder.setBolt("updateLocationBolt", new UpdateLocationBolt(poolConfig))
