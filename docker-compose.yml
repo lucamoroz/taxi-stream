@@ -1,4 +1,4 @@
-version: '3'
+version: "4"
 
 services:
   redis:
@@ -10,7 +10,7 @@ services:
 
   storm:
     build:
-      context: .
+      context: storm
       dockerfile: ./Dockerfile
     depends_on:
       - redis
