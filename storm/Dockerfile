@@ -7,4 +7,4 @@ COPY pom.xml .
 RUN mvn install
 COPY . .
 RUN mvn compile
-CMD mvn exec:java -Dexec.classpathScope=compile -Dexec.mainClass=Program | node src/logging-filter.js
+CMD mvn exec:java -Dexec.classpathScope=compile -Dexec.mainClass=Program
