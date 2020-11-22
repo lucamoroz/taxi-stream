@@ -8,9 +8,17 @@ services:
     ports:
       - 6379:6379
 
+  zoo1:
+    image: zookeeper
+    restart: always
+    hostname: zoo1
+    ports:
+      - 2181:2181
+
   storm:
     build:
       context: storm
       dockerfile: ./Dockerfile
     depends_on:
       - redis
+      - zoo1

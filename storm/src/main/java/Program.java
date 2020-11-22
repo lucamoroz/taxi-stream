@@ -10,7 +10,7 @@ import org.apache.storm.tuple.Fields;
 public class Program {
     public static void main(String[] args) {
 
-        String zookeeperIP = "127.0.0.1:2181";
+        String zookeeperIP = "zoo1:2181";
         BrokerHosts zkHosts = new ZkHosts(zookeeperIP);
 
         SpoutConfig kafkaConfig = new SpoutConfig(zkHosts, "topic", "", "storm");
