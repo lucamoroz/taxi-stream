@@ -22,7 +22,7 @@ public class Program {
         topoBuilder.setBolt("averageSpeedBolt", new AverageSpeedBolt())
                 .fieldsGrouping("calculateSpeedBolt", new Fields("id"));
 
-        topoBuilder.setBolt("calculateDistanceBolt", new CalculateDistanceBolt())
+        topoBuilder.setBolt("calculateDistanceBolt", new CalculateDistanceBolt(poolConfig))
                 .fieldsGrouping("dataProvider", new Fields("id"));
 
         topoBuilder.setBolt("updateLocationBolt", new UpdateLocationBolt(poolConfig))
