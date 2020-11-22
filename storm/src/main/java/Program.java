@@ -1,9 +1,10 @@
-import bolts.NotifyLeavingAreaBolt;
+import bolts.*;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.redis.common.config.JedisPoolConfig;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
+import spouts.FakeDataSpout;
 import spouts.NotifyLeavingAreaSpout;
 
 
@@ -15,7 +16,7 @@ public class Program {
                 .setHost("redis").setPort(6379).build();
 
         TopologyBuilder topoBuilder = new TopologyBuilder();
-        topoBuilder.setSpout("dataProvider", new DataProvider());
+        topoBuilder.setSpout("dataProvider", new FakeDataSpout());
 
         topoBuilder.setBolt("calculateSpeedBolt", new CalculateSpeedBolt())
                 .fieldsGrouping("dataProvider", new Fields("id"));

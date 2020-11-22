@@ -1,3 +1,5 @@
+package bolts;
+
 import org.apache.storm.redis.bolt.AbstractRedisBolt;
 import org.apache.storm.redis.common.config.JedisClusterConfig;
 import org.apache.storm.redis.common.config.JedisPoolConfig;
@@ -6,6 +8,7 @@ import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.tuple.Tuple;
 import redis.clients.jedis.JedisCommands;
+import utils.Logger;
 
 import java.util.Map;
 
@@ -25,7 +28,7 @@ public class UpdateLocationBolt extends AbstractRedisBolt {
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext, OutputCollector collector) {
         super.prepare(map, topologyContext, collector);
-        this.logger = new Logger("UpdateLocationBolt");
+        this.logger = new Logger("bolts.UpdateLocationBolt");
     }
 
     @Override

@@ -1,3 +1,5 @@
+package bolts;
+
 import org.apache.storm.redis.bolt.AbstractRedisBolt;
 import org.apache.storm.redis.common.config.JedisClusterConfig;
 import org.apache.storm.redis.common.config.JedisPoolConfig;
@@ -9,6 +11,7 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import redis.clients.jedis.JedisCommands;
+import utils.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +33,7 @@ public class AverageSpeedBolt extends AbstractRedisBolt {
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext, OutputCollector collector) {
         super.prepare(map, topologyContext, collector);
-        this.logger = new Logger("AverageSpeedBolt");
+        this.logger = new Logger("bolts.AverageSpeedBolt");
     }
 
     @Override

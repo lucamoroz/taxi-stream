@@ -1,3 +1,5 @@
+package bolts;
+
 import org.apache.storm.redis.bolt.AbstractRedisBolt;
 import org.apache.storm.redis.common.config.JedisClusterConfig;
 import org.apache.storm.redis.common.config.JedisPoolConfig;
@@ -9,6 +11,9 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import redis.clients.jedis.JedisCommands;
+import utils.CoordinateHelper;
+import utils.Logger;
+import utils.TaxiLog;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -21,7 +26,7 @@ public class CalculateDistanceBolt extends AbstractRedisBolt {
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext, OutputCollector collector) {
         super.prepare(map, topologyContext, collector);
-        this.logger = new Logger("CalculateDistanceBolt");
+        this.logger = new Logger("bolts.CalculateDistanceBolt");
     }
 
     public CalculateDistanceBolt(JedisPoolConfig config) {

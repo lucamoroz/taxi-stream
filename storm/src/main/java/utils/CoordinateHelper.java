@@ -1,3 +1,5 @@
+package utils;
+
 public class CoordinateHelper {
     private static int EARTH_RADIUS = 6371000;
 

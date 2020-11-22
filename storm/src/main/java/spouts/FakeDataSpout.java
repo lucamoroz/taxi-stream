@@ -1,3 +1,5 @@
+package spouts;
+
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
@@ -8,18 +10,19 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.apache.storm.utils.Utils;
+import utils.Logger;
 
 import java.util.Map;
 import java.util.Random;
 
-public class DataProvider extends BaseRichSpout {
+public class FakeDataSpout extends BaseRichSpout {
     SpoutOutputCollector _collector;
     private Logger logger;
 
     @Override
     public void open(Map<String, Object> conf, TopologyContext context, SpoutOutputCollector collector) {
         _collector = collector;
-        this.logger = new Logger("DataProvider");
+        this.logger = new Logger("spouts.DataProvider");
     }
 
     @Override
