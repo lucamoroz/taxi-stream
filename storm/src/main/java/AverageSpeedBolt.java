@@ -26,6 +26,9 @@ public class AverageSpeedBolt extends BaseRichBolt {
     public void execute(Tuple input) {
         int id = input.getInteger(0);
         double speed = input.getDouble(1);
+
+        // todo avg speed can be computed with constant memory usage, see:
+        //  https://math.stackexchange.com/questions/106700/incremental-averageing
         List<Double> speeds;
 
         if (lastSpeeds.containsKey(id)) {
