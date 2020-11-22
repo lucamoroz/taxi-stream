@@ -35,8 +35,8 @@ public class AverageSpeedBolt extends AbstractRedisBolt {
 
     @Override
     protected void process(Tuple input) {
-        int taxiId = input.getInteger(0);
-        double speed = input.getDouble(1);
+        int taxiId = input.getIntegerByField("id");
+        double speed = input.getDoubleByField("speed");
 
         // todo avg speed can be computed with constant memory usage, see:
         //  https://math.stackexchange.com/questions/106700/incremental-averageing

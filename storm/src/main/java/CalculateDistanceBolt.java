@@ -34,8 +34,11 @@ public class CalculateDistanceBolt extends AbstractRedisBolt {
 
     @Override
     protected void process(Tuple input) {
-        int taxiId = input.getInteger(0);
-        TaxiLog currentLog = new TaxiLog(new Date(), input.getDouble(1), input.getDouble(2));
+        int taxiId = input.getIntegerByField("id");
+        double latitude = input.getDoubleByField("latitude");
+        double longitude = input.getDoubleByField("longitude");
+
+        TaxiLog currentLog = new TaxiLog(new Date(), latitude, longitude);
 
         double currentOverallDistance = 0;
 

@@ -30,9 +30,9 @@ public class UpdateLocationBolt extends AbstractRedisBolt {
 
     @Override
     protected void process(Tuple input) {
-        int taxiId = input.getInteger(0);
-        double latitude = input.getDouble(1);
-        double longitude = input.getDouble(2);
+        int taxiId = input.getIntegerByField("id");
+        double latitude = input.getDoubleByField("latitude");
+        double longitude = input.getDoubleByField("longitude");
 
         JedisCommands jedisCommands = null;
         try {

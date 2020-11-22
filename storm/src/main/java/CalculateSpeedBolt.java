@@ -23,8 +23,11 @@ public class CalculateSpeedBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple input) {
-        int id = input.getInteger(0);
-        TaxiLog currentLog = new TaxiLog(new Date(), input.getDouble(1), input.getDouble(2));
+        int id = input.getIntegerByField("id");
+        double latitude = input.getDoubleByField("latitude");
+        double longitude = input.getDoubleByField("longitude");
+
+        TaxiLog currentLog = new TaxiLog(new Date(), latitude, longitude);
 
         if (lastLogs.containsKey(id)) {
             TaxiLog lastLog = lastLogs.get(id);

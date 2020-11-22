@@ -37,6 +37,6 @@ public class DataProvider extends BaseRichSpout {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("id", "x", "y"));
+        declarer.declare(new Fields("id", "latitude", "longitude"));
     }
 }
