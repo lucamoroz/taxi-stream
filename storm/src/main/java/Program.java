@@ -2,9 +2,9 @@ import bolts.NotifyLeavingAreaBolt;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.redis.common.config.JedisPoolConfig;
-import org.apache.storm.topology.ConfigurableTopology;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
+import spouts.NotifyLeavingAreaSpout;
 
 
 public class Program {
