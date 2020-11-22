@@ -19,7 +19,7 @@ public class Program {
 
         topoBuilder.setBolt("calculateSpeedBolt", new CalculateSpeedBolt())
                 .fieldsGrouping("dataProvider", new Fields("id"));
-        topoBuilder.setBolt("averageSpeedBolt", new AverageSpeedBolt())
+        topoBuilder.setBolt("averageSpeedBolt", new AverageSpeedBolt(poolConfig))
                 .fieldsGrouping("calculateSpeedBolt", new Fields("id"));
 
         topoBuilder.setBolt("calculateDistanceBolt", new CalculateDistanceBolt(poolConfig))
@@ -40,7 +40,7 @@ public class Program {
             config.setDebug(false);
 
             cluster.submitTopology("Program", config, topoBuilder.createTopology());
-            Thread.sleep(20000);
+            Thread.sleep( 20000);
             cluster.shutdown();
         } catch (Exception e) {
             e.printStackTrace();
