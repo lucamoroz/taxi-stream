@@ -1,3 +1,4 @@
+import bolts.NotifyLeavingAreaBolt;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
@@ -5,6 +6,8 @@ import org.apache.storm.kafka.spout.KafkaSpout;
 import org.apache.storm.kafka.spout.KafkaSpoutConfig;
 import org.apache.storm.redis.common.config.JedisPoolConfig;
 import org.apache.storm.topology.TopologyBuilder;
+import org.apache.storm.tuple.Fields;
+import spouts.NotifyLeavingAreaSpout;
 
 
 public class Program {
@@ -25,20 +28,20 @@ public class Program {
 
         topoBuilder.setBolt("consoleBolt", new ConsoleBolt())
                 .shuffleGrouping("kafkaSpout");
-//        topoBuilder.setBolt("calculateSpeedBolt", new CalculateSpeedBolt())
-//                .fieldsGrouping("dataProvider", new Fields("id"));
-//        topoBuilder.setBolt("averageSpeedBolt", new AverageSpeedBolt())
-//                .fieldsGrouping("calculateSpeedBolt", new Fields("id"));
-//
-//        topoBuilder.setBolt("calculateDistanceBolt", new CalculateDistanceBolt())
-//                .fieldsGrouping("dataProvider", new Fields("id"));
-//
-//        topoBuilder.setBolt("updateLocationBolt", new UpdateLocationBolt(poolConfig))
-//                .fieldsGrouping("dataProvider", new Fields("id"));
-//
-//        topoBuilder.setSpout("notifyLeavingAreaSpout", new NotifyLeavingAreaSpout());
-//        topoBuilder.setBolt("notifyLeavingAreaBolt", new NotifyLeavingAreaBolt())
-//                .fieldsGrouping("notifyLeavingAreaSpout", new Fields("id"));
+        topoBuilder.setBolt("calculateSpeedBolt", new CalculateSpeedBolt())
+                .fieldsGrouping("dataProvider", new Fields("id"));
+        topoBuilder.setBolt("averageSpeedBolt", new AverageSpeedBolt())
+                .fieldsGrouping("calculateSpeedBolt", new Fields("id"));
+
+        topoBuilder.setBolt("calculateDistanceBolt", new CalculateDistanceBolt())
+                .fieldsGrouping("dataProvider", new Fields("id"));
+
+        topoBuilder.setBolt("updateLocationBolt", new UpdateLocationBolt(poolConfig))
+                .fieldsGrouping("dataProvider", new Fields("id"));
+
+        topoBuilder.setSpout("notifyLeavingAreaSpout", new NotifyLeavingAreaSpout());
+        topoBuilder.setBolt("notifyLeavingAreaBolt", new NotifyLeavingAreaBolt())
+                .fieldsGrouping("notifyLeavingAreaSpout", new Fields("id"));
         //TODO: add notify Speeding Bolt from "Calculate Speed" bolt
 
         try {
