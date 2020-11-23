@@ -53,7 +53,7 @@ public class Program {
             config.setMaxSpoutPending(5000);
 
             cluster.submitTopology("Program", config, topoBuilder.createTopology());
-            Thread.sleep(20000);
+            Thread.sleep(2000000000);
             cluster.shutdown();
         } catch (Exception e) {
             e.printStackTrace();
