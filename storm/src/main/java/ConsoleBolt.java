@@ -11,10 +11,6 @@ public class ConsoleBolt extends BaseRichBolt {
     OutputCollector _collector;
     Logger logger;
 
-//    @Override
-//    public void prepare(Map<String, Object> topoConf, TopologyContext context, OutputCollector collector) {
-//
-//    }
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -24,10 +20,8 @@ public class ConsoleBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple input) {
-        System.out.println("Id: " + input.getString(0));
-        logger.log("Id: " + input.getString(0));
-        System.out.println("Total Distance: " + input.getString(1));
-        logger.log("Total Distance: " + input.getString(1));
+        System.out.println("Input: " + input.toString());
+        logger.log("Input: " + input.toString());
 
     }
 

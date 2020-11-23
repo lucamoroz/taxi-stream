@@ -1,31 +1,27 @@
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
-import org.apache.storm.kafka.*;
+import org.apache.storm.kafka.spout.KafkaSpout;
+import org.apache.storm.kafka.spout.KafkaSpoutConfig;
 import org.apache.storm.redis.common.config.JedisPoolConfig;
-import org.apache.storm.spout.SchemeAsMultiScheme;
 import org.apache.storm.topology.TopologyBuilder;
-import org.apache.storm.tuple.Fields;
 
 
 public class Program {
     public static void main(String[] args) {
 
-        String zookeeperIP = "zookeeper:2181";
-        BrokerHosts zkHosts = new ZkHosts(zookeeperIP);
 
-        SpoutConfig kafkaConfig = new SpoutConfig(zkHosts, "test", "", "storm");
-        kafkaConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
-        kafkaConfig.startOffsetTime = kafka.api.OffsetRequest.EarliestTime();
-
-        KafkaSpout kafkaSpout = new KafkaSpout(kafkaConfig);
         LocalCluster cluster = null;
 
         JedisPoolConfig poolConfig = new JedisPoolConfig.Builder()
                 .setHost("redis").setPort(6379).build();
 
         TopologyBuilder topoBuilder = new TopologyBuilder();
-//        topoBuilder.setSpout("dataProvider", new DataProvider());
-        topoBuilder.setSpout("kafkaSpout", kafkaSpout);
+
+        KafkaSpoutConfig.Builder<String, String> kafkaSpoutBuilder = KafkaSpoutConfig.builder("kafka:" + "9092", "test");
+        kafkaSpoutBuilder.setProp(ConsumerConfig.GROUP_ID_CONFIG, "test");
+        kafkaSpoutBuilder.setProp(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
+        topoBuilder.setSpout("kafkaSpout", new KafkaSpout<>(kafkaSpoutBuilder.build()), 1);
 
         topoBuilder.setBolt("consoleBolt", new ConsoleBolt())
                 .shuffleGrouping("kafkaSpout");
