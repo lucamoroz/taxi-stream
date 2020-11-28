@@ -1,12 +1,21 @@
+package bolts;
+
 import org.apache.storm.redis.bolt.AbstractRedisBolt;
 import org.apache.storm.redis.common.config.JedisClusterConfig;
 import org.apache.storm.redis.common.config.JedisPoolConfig;
+import org.apache.storm.task.OutputCollector;
+import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.tuple.Tuple;
 import redis.clients.jedis.JedisCommands;
+import utils.Logger;
+
+import java.util.Map;
 
 
 public class UpdateLocationBolt extends AbstractRedisBolt {
+
+    private Logger logger;
 
     public UpdateLocationBolt(JedisPoolConfig config) {
         super(config);
@@ -17,18 +26,23 @@ public class UpdateLocationBolt extends AbstractRedisBolt {
     }
 
     @Override
-    protected void process(Tuple input) {
-        System.out.println("UpdateLocationBolt received: " + input.toString());
+    public void prepare(Map<String, Object> map, TopologyContext topologyContext, OutputCollector collector) {
+        super.prepare(map, topologyContext, collector);
+        this.logger = new Logger("bolts.UpdateLocationBolt");
+    }
 
-        int taxiId = input.getInteger(0);
-        double latitude = input.getDouble(1);
-        double longitude = input.getDouble(2);
+    @Override
+    protected void process(Tuple input) {
+        int taxiId = input.getIntegerByField("id");
+        double latitude = input.getDoubleByField("latitude");
+        double longitude = input.getDoubleByField("longitude");
 
         JedisCommands jedisCommands = null;
         try {
             jedisCommands = getInstance();
             // todo define location format
             jedisCommands.hset(String.valueOf(taxiId), "location", String.format("%.6f, %.6f", latitude, longitude));
+            logger.log(String.format("updated location of taxy %d to %.6f, %.6f", taxiId, latitude, longitude));
 
         } finally {
             if (jedisCommands != null) {
