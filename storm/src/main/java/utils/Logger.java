@@ -1,3 +1,5 @@
+package utils;
+
 public class Logger {
     private String name;
 
