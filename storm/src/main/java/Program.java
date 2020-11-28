@@ -7,7 +7,6 @@ import org.apache.storm.kafka.spout.KafkaSpoutConfig;
 import org.apache.storm.redis.common.config.JedisPoolConfig;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
-import spouts.FakeDataSpout;
 import spouts.NotifyLeavingAreaSpout;
 
 
@@ -28,22 +27,22 @@ public class Program {
         kafkaSpoutBuilder.setProp(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
         topoBuilder.setSpout("kafkaSpout", new KafkaSpout<>(kafkaSpoutBuilder.build()), 1);
 
-        topoBuilder.setBolt("consoleBolt", new ConsoleBolt())
-                 .shuffleGrouping("kafkaSpout");
-        /*topoBuilder.setBolt("calculateSpeedBolt", new CalculateSpeedBolt())
-                .fieldsGrouping("kafkaSpout", new Fields("id"));
+        // topoBuilder.setBolt("consoleBolt", new ConsoleBolt())
+        //           .shuffleGrouping("kafkaSpout");
+        topoBuilder.setBolt("calculateSpeedBolt", new CalculateSpeedBolt())
+                .fieldsGrouping("kafkaSpout", new Fields("taxi_id"));
         topoBuilder.setBolt("averageSpeedBolt", new AverageSpeedBolt(poolConfig))
-                .fieldsGrouping("calculateSpeedBolt", new Fields("id"));
+                .fieldsGrouping("calculateSpeedBolt", new Fields("taxi_id"));
 
         topoBuilder.setBolt("calculateDistanceBolt", new CalculateDistanceBolt(poolConfig))
-                .fieldsGrouping("kafkaSpout", new Fields("id"));
+                .fieldsGrouping("kafkaSpout", new Fields("taxi_id"));
 
         topoBuilder.setBolt("updateLocationBolt", new UpdateLocationBolt(poolConfig))
-                .fieldsGrouping("kafkaSpout", new Fields("id"));
+                .fieldsGrouping("kafkaSpout", new Fields("taxi_id"));
 
         topoBuilder.setSpout("notifyLeavingAreaSpout", new NotifyLeavingAreaSpout());
         topoBuilder.setBolt("notifyLeavingAreaBolt", new NotifyLeavingAreaBolt())
-                .fieldsGrouping("notifyLeavingAreaSpout", new Fields("id"));*/
+                .fieldsGrouping("notifyLeavingAreaSpout", new Fields("taxi_id"));
         //TODO: add notify Speeding Bolt from "Calculate Speed" bolt
 
         try {

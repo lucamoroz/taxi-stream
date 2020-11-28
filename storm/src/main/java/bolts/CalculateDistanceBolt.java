@@ -14,10 +14,13 @@ import redis.clients.jedis.JedisCommands;
 import utils.CoordinateHelper;
 import utils.Logger;
 import utils.TaxiLog;
+import utils.TransferKafkaObject;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.google.gson.Gson;
 
 public class CalculateDistanceBolt extends AbstractRedisBolt {
     Map<Integer, Object[]> overallDistances = new HashMap<Integer, Object[]>();
@@ -39,9 +42,11 @@ public class CalculateDistanceBolt extends AbstractRedisBolt {
 
     @Override
     protected void process(Tuple input) {
-        int taxiId = input.getIntegerByField("id");
-        double latitude = input.getDoubleByField("latitude");
-        double longitude = input.getDoubleByField("longitude");
+        Gson g = new Gson();
+        TransferKafkaObject p = g.fromJson(input.getValue(4).toString(), TransferKafkaObject.class);
+        int taxiId = p.getTaxi_id();
+        double latitude = Double.parseDouble(p.getLatitude());
+        double longitude = Double.parseDouble(p.getLongitude());
 
         TaxiLog currentLog = new TaxiLog(new Date(), latitude, longitude);
 

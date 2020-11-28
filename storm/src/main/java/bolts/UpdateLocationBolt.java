@@ -9,8 +9,11 @@ import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.tuple.Tuple;
 import redis.clients.jedis.JedisCommands;
 import utils.Logger;
+import utils.TransferKafkaObject;
 
 import java.util.Map;
+
+import com.google.gson.Gson;
 
 
 public class UpdateLocationBolt extends AbstractRedisBolt {
@@ -33,9 +36,11 @@ public class UpdateLocationBolt extends AbstractRedisBolt {
 
     @Override
     protected void process(Tuple input) {
-        int taxiId = input.getIntegerByField("id");
-        double latitude = input.getDoubleByField("latitude");
-        double longitude = input.getDoubleByField("longitude");
+        Gson g = new Gson();
+        TransferKafkaObject p = g.fromJson(input.getValue(4).toString(), TransferKafkaObject.class);
+        int taxiId = p.getTaxi_id();
+        double latitude = Double.parseDouble(p.getLatitude());
+        double longitude = Double.parseDouble(p.getLongitude());
 
         JedisCommands jedisCommands = null;
         try {
