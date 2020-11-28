@@ -6,21 +6,15 @@ import org.apache.storm.redis.common.config.JedisPoolConfig;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
-import org.apache.storm.topology.base.BaseRichBolt;
-import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
-import org.apache.storm.tuple.Values;
 import redis.clients.jedis.JedisCommands;
 import utils.CoordinateHelper;
 import utils.Logger;
 import utils.TaxiLog;
-import utils.TransferKafkaObject;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.gson.Gson;
 
 public class CalculateDistanceBolt extends AbstractRedisBolt {
     Map<Integer, Object[]> overallDistances = new HashMap<Integer, Object[]>();
@@ -42,11 +36,9 @@ public class CalculateDistanceBolt extends AbstractRedisBolt {
 
     @Override
     protected void process(Tuple input) {
-        Gson g = new Gson();
-        TransferKafkaObject p = g.fromJson(input.getValue(4).toString(), TransferKafkaObject.class);
-        int taxiId = p.getTaxi_id();
-        double latitude = Double.parseDouble(p.getLatitude());
-        double longitude = Double.parseDouble(p.getLongitude());
+        int taxiId = input.getIntegerByField("taxi_id");
+        double latitude = input.getDoubleByField("latitude");
+        double longitude = input.getDoubleByField("longitude");
 
         TaxiLog currentLog = new TaxiLog(new Date(), latitude, longitude);
 

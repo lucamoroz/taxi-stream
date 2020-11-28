@@ -1,4 +1,6 @@
+import com.google.gson.Gson;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import bolts.*;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
@@ -7,7 +9,10 @@ import org.apache.storm.kafka.spout.KafkaSpoutConfig;
 import org.apache.storm.redis.common.config.JedisPoolConfig;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
+import org.apache.storm.tuple.Values;
+import spouts.FakeDataSpout;
 import spouts.NotifyLeavingAreaSpout;
+import utils.TransferKafkaObject;
 
 
 public class Program {
@@ -25,6 +30,11 @@ public class Program {
         KafkaSpoutConfig.Builder<String, String> kafkaSpoutBuilder = KafkaSpoutConfig.builder("kafka:" + "9092", "test");
         kafkaSpoutBuilder.setProp(ConsumerConfig.GROUP_ID_CONFIG, "test");
         kafkaSpoutBuilder.setProp(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
+        kafkaSpoutBuilder.setRecordTranslator((ConsumerRecord<String, String> record) -> {            
+            Gson g = new Gson();
+            TransferKafkaObject p = g.fromJson(record.value(), TransferKafkaObject.class);
+            return new Values(p.getTaxi_id(), p.getDatetime(), Double.parseDouble(p.getLatitude()), Double.parseDouble(p.getLongitude()));
+        }, new Fields("taxi_id", "datetime", "latitude", "longitude"));
         topoBuilder.setSpout("kafkaSpout", new KafkaSpout<>(kafkaSpoutBuilder.build()), 1);
 
         // topoBuilder.setBolt("consoleBolt", new ConsoleBolt())
@@ -32,7 +42,7 @@ public class Program {
         topoBuilder.setBolt("calculateSpeedBolt", new CalculateSpeedBolt())
                 .fieldsGrouping("kafkaSpout", new Fields("taxi_id"));
         topoBuilder.setBolt("averageSpeedBolt", new AverageSpeedBolt(poolConfig))
-                .fieldsGrouping("calculateSpeedBolt", new Fields("taxi_id"));
+                 .fieldsGrouping("calculateSpeedBolt", new Fields("id"));
 
         topoBuilder.setBolt("calculateDistanceBolt", new CalculateDistanceBolt(poolConfig))
                 .fieldsGrouping("kafkaSpout", new Fields("taxi_id"));
@@ -42,7 +52,7 @@ public class Program {
 
         topoBuilder.setSpout("notifyLeavingAreaSpout", new NotifyLeavingAreaSpout());
         topoBuilder.setBolt("notifyLeavingAreaBolt", new NotifyLeavingAreaBolt())
-                .fieldsGrouping("notifyLeavingAreaSpout", new Fields("taxi_id"));
+                .fieldsGrouping("notifyLeavingAreaSpout", new Fields("id"));
         //TODO: add notify Speeding Bolt from "Calculate Speed" bolt
 
         try {
