@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class CalculateSpeedBolt extends BaseRichBolt {
     OutputCollector _collector;
-    Map<Integer, TaxiLog> lastLogs = new HashMap<Integer, TaxiLog>();
+    Map<Integer, TaxiLog> lastLogs = new HashMap<>();
     Logger logger;
 
     @Override

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AverageSpeedBolt extends AbstractRedisBolt {
-    Map<Integer, List<Double>> lastSpeeds = new HashMap<Integer, List<Double>>();
+    Map<Integer, List<Double>> lastSpeeds = new HashMap<>();
     Logger logger;
 
     public AverageSpeedBolt(JedisPoolConfig config) {
@@ -50,7 +50,7 @@ public class AverageSpeedBolt extends AbstractRedisBolt {
         }
 
         speeds.add(speed);
-        double averageSpeed = speeds.stream().reduce(0d, (total, element) -> total + element) / speeds.size();
+        double averageSpeed = speeds.stream().reduce(0d, Double::sum) / speeds.size();
 
 
         JedisCommands jedisCommands = null;

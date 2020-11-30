@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CalculateDistanceBolt extends AbstractRedisBolt {
-    Map<Integer, Object[]> overallDistances = new HashMap<Integer, Object[]>();
+    Map<Integer, Object[]> overallDistances = new HashMap<>();
     Logger logger;
 
     @Override

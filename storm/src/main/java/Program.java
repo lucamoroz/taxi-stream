@@ -1,7 +1,7 @@
+import bolts.*;
 import com.google.gson.Gson;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import bolts.*;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.kafka.spout.KafkaSpout;
@@ -10,7 +10,6 @@ import org.apache.storm.redis.common.config.JedisPoolConfig;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Values;
-import spouts.FakeDataSpout;
 import spouts.NotifyLeavingAreaSpout;
 import utils.TransferKafkaObject;
 
@@ -19,7 +18,7 @@ public class Program {
     public static void main(String[] args) {
 
 
-        LocalCluster cluster = null;
+        LocalCluster cluster;
 
         JedisPoolConfig poolConfig = new JedisPoolConfig.Builder()
                 .setHost("redis").setPort(6379).build();
