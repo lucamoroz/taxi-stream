@@ -1,13 +1,13 @@
 package bolts;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
-import org.apache.storm.topology.IRichBolt;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Tuple;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
@@ -18,7 +18,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
     public void prepare(Map<String, Object> map, TopologyContext topologyContext,
         OutputCollector outputCollector) {
         this.outputCollector = outputCollector;
-        idNotificationMap = new HashMap<Integer, Integer>();
+        idNotificationMap = new HashMap<>();
     }
 
     @Override

@@ -6,10 +6,7 @@ import org.apache.storm.redis.common.config.JedisPoolConfig;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
-import org.apache.storm.topology.base.BaseRichBolt;
-import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
-import org.apache.storm.tuple.Values;
 import redis.clients.jedis.JedisCommands;
 import utils.CoordinateHelper;
 import utils.Logger;
@@ -20,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CalculateDistanceBolt extends AbstractRedisBolt {
-    Map<Integer, Object[]> overallDistances = new HashMap<Integer, Object[]>();
+    Map<Integer, Object[]> overallDistances = new HashMap<>();
     Logger logger;
 
     @Override
@@ -39,7 +36,7 @@ public class CalculateDistanceBolt extends AbstractRedisBolt {
 
     @Override
     protected void process(Tuple input) {
-        int taxiId = input.getIntegerByField("id");
+        int taxiId = input.getIntegerByField("taxi_id");
         double latitude = input.getDoubleByField("latitude");
         double longitude = input.getDoubleByField("longitude");
 

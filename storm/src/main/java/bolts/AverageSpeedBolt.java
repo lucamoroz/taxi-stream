@@ -6,10 +6,7 @@ import org.apache.storm.redis.common.config.JedisPoolConfig;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
-import org.apache.storm.topology.base.BaseRichBolt;
-import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
-import org.apache.storm.tuple.Values;
 import redis.clients.jedis.JedisCommands;
 import utils.Logger;
 
@@ -19,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AverageSpeedBolt extends AbstractRedisBolt {
-    Map<Integer, List<Double>> lastSpeeds = new HashMap<Integer, List<Double>>();
+    Map<Integer, List<Double>> lastSpeeds = new HashMap<>();
     Logger logger;
 
     public AverageSpeedBolt(JedisPoolConfig config) {
@@ -53,7 +50,7 @@ public class AverageSpeedBolt extends AbstractRedisBolt {
         }
 
         speeds.add(speed);
-        double averageSpeed = speeds.stream().reduce(0d, (total, element) -> total + element) / speeds.size();
+        double averageSpeed = speeds.stream().reduce(0d, Double::sum) / speeds.size();
 
 
         JedisCommands jedisCommands = null;

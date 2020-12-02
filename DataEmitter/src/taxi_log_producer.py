@@ -8,7 +8,7 @@ from taxi_log import TaxiLog
 
 class TaxiLogProducer:
 
-    CONST_TOPIC = "taxi"
+    CONST_TOPIC = "test"
 
     def __init__(self, server: str, logs_path: str):
         self.kafka_producer = \

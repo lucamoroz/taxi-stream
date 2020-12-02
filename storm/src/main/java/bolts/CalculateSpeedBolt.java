@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class CalculateSpeedBolt extends BaseRichBolt {
     OutputCollector _collector;
-    Map<Integer, TaxiLog> lastLogs = new HashMap<Integer, TaxiLog>();
+    Map<Integer, TaxiLog> lastLogs = new HashMap<>();
     Logger logger;
 
     @Override
@@ -28,14 +28,15 @@ public class CalculateSpeedBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple input) {
-        int id = input.getIntegerByField("id");
+        System.out.println(input.toString());
+        int taxiId = input.getIntegerByField("taxi_id");
         double latitude = input.getDoubleByField("latitude");
         double longitude = input.getDoubleByField("longitude");
 
         TaxiLog currentLog = new TaxiLog(new Date(), latitude, longitude);
 
-        if (lastLogs.containsKey(id)) {
-            TaxiLog lastLog = lastLogs.get(id);
+        if (lastLogs.containsKey(taxiId)) {
+            TaxiLog lastLog = lastLogs.get(taxiId);
 
             double distance = CoordinateHelper.calculateDistance(lastLog, currentLog);
 
@@ -43,10 +44,10 @@ public class CalculateSpeedBolt extends BaseRichBolt {
 
             double speed = distance/timeDiff;
 
-            _collector.emit(new Values(id, speed));
+            _collector.emit(new Values(taxiId, speed));
             logger.log("speed: " + speed);
         }
-        lastLogs.put(id, currentLog);
+        lastLogs.put(taxiId, currentLog);
     }
 
     @Override
