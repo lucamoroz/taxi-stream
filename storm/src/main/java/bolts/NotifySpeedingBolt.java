@@ -18,7 +18,7 @@ public class NotifySpeedingBolt extends BaseRichBolt {
     public void prepare(Map<String, Object> map, TopologyContext topologyContext,
         OutputCollector outputCollector) {
         this.outputCollector = outputCollector;
-        idNotificationMap = new HashMap<Integer, Integer>();
+        idNotificationMap = new HashMap<>();
         speedLimit = 50;
     }
 

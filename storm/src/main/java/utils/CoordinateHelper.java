@@ -1,7 +1,7 @@
 package utils;
 
 public class CoordinateHelper {
-    private static int EARTH_RADIUS = 6371000;
+    private static final int EARTH_RADIUS = 6371000;
 
     // todo unit of measure?
     public static double calculateDistance(TaxiLog t1, TaxiLog t2) {

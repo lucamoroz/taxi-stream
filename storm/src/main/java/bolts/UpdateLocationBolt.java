@@ -13,6 +13,7 @@ import utils.Logger;
 import java.util.Map;
 
 
+
 public class UpdateLocationBolt extends AbstractRedisBolt {
 
     private Logger logger;
@@ -32,8 +33,8 @@ public class UpdateLocationBolt extends AbstractRedisBolt {
     }
 
     @Override
-    protected void process(Tuple input) {
-        int taxiId = input.getIntegerByField("id");
+    protected void process(Tuple input) {        
+        int taxiId = input.getIntegerByField("taxi_id");
         double latitude = input.getDoubleByField("latitude");
         double longitude = input.getDoubleByField("longitude");
 

@@ -5,7 +5,7 @@ build:
 	docker-compose build
 
 run:
-	docker-compose up -d
+	docker-compose up
 
 logs:
 	docker-compose logs -f
