@@ -11,9 +11,11 @@ where `PATH_TO_DATASET` is the path to the folder containing the `.txt` log file
 # Run
 ` sudo docker run --mount type=bind,source="$(pwd)"/data/logs.txt,target=/data/logs.txt,readonly aic/dataemitter`
 
-To change the speed of emission run:
+To change the speed of emission, or the maximum number of taxis to follow run:
 
 `sudo docker run --mount type=bind,source="$(pwd)"/data/logs.txt,target=/data/logs.txt,readonly aic/dataemitter python main.py
- [SPEED_MULTIPLIER]`
+ [SPEED_MULTIPLIER] [TAXI_LIMIT]`
 
-Where `[SPEED_MULTIPLIER]` controls how fast the logs are emitted (e.g. with `SPEED_MULTIPLIER`=2 the speed is doubled).
+Where `[SPEED_MULTIPLIER]` controls how fast the logs are emitted (e.g. with `SPEED_MULTIPLIER`=2 the speed is doubled)
+and `TAXI_LIMIT` is the maximum number of taxis to follow and send logs about (use `TAXI_LIMIT`=-1 for no limits).
+

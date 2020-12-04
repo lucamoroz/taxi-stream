@@ -17,4 +17,4 @@ COPY src .
 # update PATH environment variable
 ENV PATH=/root/.local:$PATH
 
-CMD [ "python", "./main.py", "1"]
+CMD [ "python", "./main.py", "1", "-1"]
