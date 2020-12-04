@@ -44,7 +44,7 @@ public class CalculateSpeedBolt extends BaseRichBolt {
 
             double speed = distance/timeDiff;
 
-            _collector.emit(new Values(taxiId, speed));
+            _collector.emit(new Values(taxiId, speed, currentLog.getTimestamp()));
             logger.log("speed: " + speed);
         }
         lastLogs.put(taxiId, currentLog);
@@ -52,6 +52,6 @@ public class CalculateSpeedBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("id", "speed"));
+        declarer.declare(new Fields("id", "speed", "timestamp"));
     }
 }
