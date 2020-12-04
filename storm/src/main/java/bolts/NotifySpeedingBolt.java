@@ -1,5 +1,6 @@
 package bolts;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.storm.task.OutputCollector;
@@ -7,38 +8,46 @@ import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Tuple;
+import utils.Logger;
+import utils.TaxiLog;
 
 public class NotifySpeedingBolt extends BaseRichBolt {
 
     OutputCollector outputCollector;
-    Map<Integer, Integer> idNotificationMap;
-    Integer speedLimit; //eg. 50 km/h
+
+    Map<Integer, Date> lastLogs = new HashMap<>();
+    Logger logger;
+
+    Double speedLimitMPerSecond;
 
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext,
         OutputCollector outputCollector) {
         this.outputCollector = outputCollector;
-        idNotificationMap = new HashMap<>();
-        speedLimit = 50;
+        lastLogs = new HashMap<>();
+        speedLimitMPerSecond = 13.89;
     }
 
+    //TODO: check, whether there are race conditions (include timestamp)
     @Override
     public void execute(Tuple tuple) {
-        //0 ... id of the notification
-        //1 ... id of the taxi
-        //2 ... speed of the taxi
-        int idNotification = tuple.getInteger(0);
 
-        if(!idNotificationMap.containsKey(idNotification)){
+        int taxiId = tuple.getIntegerByField("id");
 
-            int idTaxi = tuple.getInteger(1);
-            int speed = tuple.getInteger(2);
+        Double speed = tuple.getDoubleByField("speed");
 
-            idNotificationMap.put(idNotification, idTaxi);
+        if(!lastLogs.containsKey(taxiId) && speed > speedLimitMPerSecond){
 
-            if(speed > speedLimit) {
-                System.out.println("Taxi " + idTaxi + " is speeding, implement notification!");
-                //TODO: implement frontend notification
+            //TODO: add date
+            lastLogs.put(taxiId, new Date());
+
+            System.out.println("Taxi " + taxiId + " is speeding, implement notification!");
+            //TODO: implement frontend notification
+
+
+        } else {
+            if( speed <= speedLimitMPerSecond){
+                lastLogs.remove(taxiId);
             }
         }
 

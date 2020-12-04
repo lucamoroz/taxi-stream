@@ -1,5 +1,7 @@
 package bolts;
 
+import clojure.lang.Compiler.C;
+import java.util.Date;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -8,37 +10,62 @@ import org.apache.storm.tuple.Tuple;
 
 import java.util.HashMap;
 import java.util.Map;
+import utils.CoordinateHelper;
+import utils.Logger;
+import utils.TaxiLog;
 
 public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
-    OutputCollector outputCollector;
-    Map<Integer, Integer> idNotificationMap;
+    private OutputCollector outputCollector;
+    private Map<Integer, TaxiLog> lastLogs = new HashMap<>();
+    private Logger logger;
+
+
+    private Double latitudeBeijing = 39.9075;
+    private Double longitudeBeijing = 116.39723;
+
+    private TaxiLog centerBeijingLocation;
+
+    private Integer maxDistanceToBeijingCenterMeter = 10000;
 
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext,
         OutputCollector outputCollector) {
         this.outputCollector = outputCollector;
-        idNotificationMap = new HashMap<>();
+        lastLogs = new HashMap<>();
+
+        centerBeijingLocation = new TaxiLog(new Date(), longitudeBeijing, latitudeBeijing);
     }
 
     @Override
     public void execute(Tuple tuple) {
-        //0 ... id of the notification
-        //1 ... id of the taxi
-        int idNotification = tuple.getInteger(0);
 
-        if(!idNotificationMap.containsKey(idNotification)){
-            int idTaxi = tuple.getInteger(1);
-            //TODO: calcualte distance
-            Integer distanceToBeijingCenter = 0; //set the distance to Beijing center in km
+        int taxiId = tuple.getIntegerByField("taxi_id");
+        Double longitude = tuple.getDoubleByField("longitude");
+        Double latitude = tuple.getDoubleByField("latitude");
+
+        TaxiLog currentLog = new TaxiLog(new Date(), latitude, longitude);
+
+        Double distanceToBeijingCenterMeter = CoordinateHelper.calculateDistance(currentLog, centerBeijingLocation);
+
+        //TODO: include timestamp check
+        if(!lastLogs.containsKey(taxiId) && distanceToBeijingCenterMeter > maxDistanceToBeijingCenterMeter){
+
+            this.logger.log("Taxi " + taxiId + " is leaving a predefined area!");
+
+            this.lastLogs.put(taxiId, currentLog);
+            //TODO: implement frontend notification
 
 
-            idNotificationMap.put(idNotification, idTaxi);
+        } else {
+            TaxiLog existingLog = this.lastLogs.get(taxiId);
 
-            if (distanceToBeijingCenter > 10){
-                //Inform the frontend
-                System.out.println("Taxi " + idTaxi + " is leaving a predefined area, implement http notification!");
-                //TODO: implement frontend notification
+            if (distanceToBeijingCenterMeter <= maxDistanceToBeijingCenterMeter &&
+                existingLog.getTimestamp().before(currentLog.getTimestamp())){
+
+                this.logger.log("Taxi " + taxiId + " is inside the predefined area again");
+
+                this.lastLogs.remove(taxiId);
 
             }
         }
@@ -49,4 +76,6 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         //there is only output to the frontend
     }
+
+
 }
