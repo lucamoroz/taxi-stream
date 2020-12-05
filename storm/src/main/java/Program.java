@@ -52,6 +52,9 @@ public class Program {
         topoBuilder.setBolt("notifyLeavingAreaBolt", new NotifyLeavingAreaBolt())
                 .fieldsGrouping("kafkaSpout", new Fields("taxi_id"));
 
+        topoBuilder.setBolt("notifySpeedingBolt", new NotifySpeedingBolt())
+            .fieldsGrouping("calculateSpeedBolt", new Fields("id"));
+
 
         //TODO: add notify Speeding Bolt from "Calculate Speed" bolt
 
