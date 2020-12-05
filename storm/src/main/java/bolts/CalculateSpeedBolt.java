@@ -42,10 +42,13 @@ public class CalculateSpeedBolt extends BaseRichBolt {
 
             long timeDiff = currentLog.getTimestamp().getTime() - lastLog.getTimestamp().getTime();
 
-            double speed = distance/timeDiff;
+            // Ignore logs with the same timestamp
+            if (timeDiff != 0) {
+                double speed = distance/timeDiff;
 
-            _collector.emit(new Values(taxiId, speed));
-            logger.log("speed: " + speed);
+                _collector.emit(new Values(taxiId, speed));
+                logger.log(String.format("speed of taxi %d: %.2f ", taxiId, speed));
+            }
         }
         lastLogs.put(taxiId, currentLog);
     }
