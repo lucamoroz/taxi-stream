@@ -1,6 +1,5 @@
 package bolts;
 
-import clojure.lang.Compiler.C;
 import java.util.Date;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
