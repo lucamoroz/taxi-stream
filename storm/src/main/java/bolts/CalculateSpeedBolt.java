@@ -51,6 +51,7 @@ public class CalculateSpeedBolt extends BaseRichBolt {
             }
         }
         lastLogs.put(taxiId, currentLog);
+        _collector.ack(input);
     }
 
     @Override
