@@ -12,7 +12,6 @@ import utils.CoordinateHelper;
 import utils.Logger;
 import utils.TaxiLog;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,16 +38,16 @@ public class CalculateDistanceBolt extends AbstractRedisBolt {
         int taxiId = input.getIntegerByField("taxi_id");
         double latitude = input.getDoubleByField("latitude");
         double longitude = input.getDoubleByField("longitude");
+        long timestamp = input.getLongByField("timestamp");
 
-        TaxiLog currentLog = new TaxiLog(new Date(), latitude, longitude);
+        TaxiLog currentLog = new TaxiLog(timestamp, latitude, longitude);
 
         double currentOverallDistance = 0;
 
         if (overallDistances.containsKey(taxiId)) {
             currentOverallDistance = (double) overallDistances.get(taxiId)[0];
             TaxiLog lastLog = (TaxiLog) overallDistances.get(taxiId)[1];
-
-            currentOverallDistance += CoordinateHelper.calculateDistance(lastLog, currentLog);
+            currentOverallDistance += CoordinateHelper.calculateDistance(lastLog, currentLog) / 1000d;
         }
 
         overallDistances.put(taxiId, new Object[]{currentOverallDistance, currentLog});
@@ -57,7 +56,7 @@ public class CalculateDistanceBolt extends AbstractRedisBolt {
         try {
             jedisCommands = getInstance();
             jedisCommands.hset(String.valueOf(taxiId), "overall_distance", String.format("%.6f", currentOverallDistance));
-            logger.log(String.format("overall distance of taxi %d: %.6f", taxiId, currentOverallDistance));
+            logger.log(String.format("overall distance of taxi %d: %.6f km", taxiId, currentOverallDistance));
 
         } finally {
             if (jedisCommands != null) {

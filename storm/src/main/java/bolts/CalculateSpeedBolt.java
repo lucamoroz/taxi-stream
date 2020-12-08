@@ -11,7 +11,6 @@ import utils.CoordinateHelper;
 import utils.Logger;
 import utils.TaxiLog;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,26 +27,27 @@ public class CalculateSpeedBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple input) {
-        System.out.println(input.toString());
         int taxiId = input.getIntegerByField("taxi_id");
         double latitude = input.getDoubleByField("latitude");
         double longitude = input.getDoubleByField("longitude");
+        long timestamp = input.getLongByField("timestamp");
 
-        TaxiLog currentLog = new TaxiLog(new Date(), latitude, longitude);
+        TaxiLog currentLog = new TaxiLog(timestamp, latitude, longitude);
 
         if (lastLogs.containsKey(taxiId)) {
             TaxiLog lastLog = lastLogs.get(taxiId);
 
-            double distance = CoordinateHelper.calculateDistance(lastLog, currentLog);
+            double distanceKm = CoordinateHelper.calculateDistance(lastLog, currentLog) / 1000d;
 
-            long timeDiff = currentLog.getTimestamp().getTime() - lastLog.getTimestamp().getTime();
+            double timeDiffHours = (currentLog.getTimestamp() - lastLog.getTimestamp()) / 3600d;
 
             // Ignore logs with the same timestamp
-            if (timeDiff != 0) {
-                double speed = distance/timeDiff;
+            if (timeDiffHours != 0) {
+                // speed as km/h
+                double speed = distanceKm/timeDiffHours;
 
                 _collector.emit(new Values(taxiId, speed));
-                logger.log(String.format("speed of taxi %d: %.2f ", taxiId, speed));
+                logger.log(String.format("speed of taxi %d: %.2f km/h ", taxiId, speed));
             }
         }
         lastLogs.put(taxiId, currentLog);

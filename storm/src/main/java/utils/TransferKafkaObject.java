@@ -5,9 +5,9 @@ public class TransferKafkaObject {
     Integer taxi_id;
     String longitude;
     String latitude;
-    Float datetime;
+    Long datetime;
 
-    public TransferKafkaObject (Integer taxi_id, String longitude, String latitude, Float datetime){
+    public TransferKafkaObject (Integer taxi_id, String longitude, String latitude, Long datetime){
         this.taxi_id = taxi_id;
         this.longitude = longitude;
         this.latitude = latitude;
@@ -27,7 +27,7 @@ public class TransferKafkaObject {
         return this.latitude;
     }
 
-    public Float getDatetime(){
+    public Long getDatetime(){
         return this.datetime;
     }
 
@@ -35,6 +35,6 @@ public class TransferKafkaObject {
         return "taxi_id: " + taxi_id +
             " longitude: " + longitude +
             " latitude: " +  latitude +
-            " datetime: " + datetime;
+            " timestamp: " + datetime;
     }
 }
