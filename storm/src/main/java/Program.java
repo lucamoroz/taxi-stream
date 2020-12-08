@@ -17,27 +17,15 @@ import utils.TransferKafkaObject;
 public class Program {
     public static void main(String[] args) {
 
-
         LocalCluster cluster;
 
         JedisPoolConfig poolConfig = new JedisPoolConfig.Builder()
                 .setHost("redis").setPort(6379).build();
 
         TopologyBuilder topoBuilder = new TopologyBuilder();
-        //topoBuilder.setSpout("dataProvider", new FakeDataSpout());
 
-        KafkaSpoutConfig.Builder<String, String> kafkaSpoutBuilder = KafkaSpoutConfig.builder("kafka:" + "9092", "test");
-        kafkaSpoutBuilder.setProp(ConsumerConfig.GROUP_ID_CONFIG, "test");
-        kafkaSpoutBuilder.setProp(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
-        kafkaSpoutBuilder.setRecordTranslator((ConsumerRecord<String, String> record) -> {            
-            Gson g = new Gson();
-            TransferKafkaObject p = g.fromJson(record.value(), TransferKafkaObject.class);
-            return new Values(p.getTaxi_id(), p.getDatetime(), Double.parseDouble(p.getLatitude()), Double.parseDouble(p.getLongitude()));
-        }, new Fields("taxi_id", "datetime", "latitude", "longitude"));
-        topoBuilder.setSpout("kafkaSpout", new KafkaSpout<>(kafkaSpoutBuilder.build()), 1);
+        topoBuilder.setSpout("kafkaSpout", getKafkaSpout(), 1);
 
-        // topoBuilder.setBolt("consoleBolt", new ConsoleBolt())
-        //           .shuffleGrouping("kafkaSpout");
         topoBuilder.setBolt("calculateSpeedBolt", new CalculateSpeedBolt())
                 .fieldsGrouping("kafkaSpout", new Fields("taxi_id"));
         topoBuilder.setBolt("averageSpeedBolt", new AverageSpeedBolt(poolConfig))
@@ -62,10 +50,23 @@ public class Program {
             config.setMaxSpoutPending(5000);
 
             cluster.submitTopology("Program", config, topoBuilder.createTopology());
-            Thread.sleep( 20000);
+            Thread.sleep( 200000);
             cluster.shutdown();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static KafkaSpout<String, String> getKafkaSpout() {
+        KafkaSpoutConfig.Builder<String, String> kafkaSpoutBuilder = KafkaSpoutConfig.builder("kafka:" + "9092", "test");
+        kafkaSpoutBuilder.setProp(ConsumerConfig.GROUP_ID_CONFIG, "test");
+        kafkaSpoutBuilder.setProp(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
+        kafkaSpoutBuilder.setRecordTranslator((ConsumerRecord<String, String> record) -> {
+            Gson g = new Gson();
+            TransferKafkaObject p = g.fromJson(record.value(), TransferKafkaObject.class);
+            return new Values(p.getTaxi_id(), p.getDatetime(), Double.parseDouble(p.getLatitude()), Double.parseDouble(p.getLongitude()));
+        }, new Fields("taxi_id", "timestamp", "latitude", "longitude"));
+
+        return new KafkaSpout<>(kafkaSpoutBuilder.build());
     }
 }
