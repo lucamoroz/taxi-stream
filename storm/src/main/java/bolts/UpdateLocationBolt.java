@@ -41,7 +41,7 @@ public class UpdateLocationBolt extends AbstractRedisBolt {
         JedisCommands jedisCommands = null;
         try {
             jedisCommands = getInstance();
-            // todo define location format
+
             jedisCommands.hset(String.valueOf(taxiId), "location", String.format("%.6f, %.6f", latitude, longitude));
             logger.log(String.format("updated location of taxy %d to %.6f, %.6f", taxiId, latitude, longitude));
 

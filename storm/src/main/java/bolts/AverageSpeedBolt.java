@@ -57,7 +57,7 @@ public class AverageSpeedBolt extends AbstractRedisBolt {
         try {
             jedisCommands = getInstance();
             jedisCommands.hset(String.valueOf(taxiId), "average_speed", String.format("%.6f", averageSpeed));
-            logger.log(String.format("average speed of taxi %d: %.6f", taxiId, averageSpeed));
+            logger.log(String.format("average speed of taxi %d: %.2f km/h", taxiId, averageSpeed));
         } finally {
             if (jedisCommands != null) {
                 returnInstance(jedisCommands);
