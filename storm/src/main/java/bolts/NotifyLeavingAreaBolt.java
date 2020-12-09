@@ -1,6 +1,5 @@
 package bolts;
 
-import java.util.Date;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -25,7 +24,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
     private TaxiLog centerBeijingLocation;
 
-    private Integer maxDistanceToBeijingCenterMeter = 10000;
+    private Integer maxDistanceToBeijingCenterKiloMeter = 10;
 
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext,
@@ -34,6 +33,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         lastLogs = new HashMap<>();
 
         centerBeijingLocation = new TaxiLog(0, longitudeBeijing, latitudeBeijing);
+        this.logger = new Logger("bolts.NotifyLeavingAreaBolt");
     }
 
     @Override
@@ -49,19 +49,19 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
         Double distanceToBeijingCenterMeter = CoordinateHelper.calculateDistance(currentLog, centerBeijingLocation);
 
+
         //TODO: include timestamp check
-        if(!lastLogs.containsKey(taxiId) && distanceToBeijingCenterMeter > maxDistanceToBeijingCenterMeter){
+        if(!lastLogs.containsKey(taxiId)){
+            if (distanceToBeijingCenterMeter > maxDistanceToBeijingCenterKiloMeter) {
+                this.logger.log("Taxi " + taxiId + " is leaving a predefined area!");
 
-            this.logger.log("Taxi " + taxiId + " is leaving a predefined area!");
-
-            this.lastLogs.put(taxiId, currentLog);
-            //TODO: implement frontend notification
-
-
+                this.lastLogs.put(taxiId, currentLog);
+                //TODO: implement frontend notification
+            }
         } else {
             TaxiLog existingLog = this.lastLogs.get(taxiId);
 
-            if (distanceToBeijingCenterMeter <= maxDistanceToBeijingCenterMeter &&
+            if (distanceToBeijingCenterMeter <= maxDistanceToBeijingCenterKiloMeter &&
                 existingLog.getTimestamp() <= currentLog.getTimestamp()){
 
                 this.logger.log("Taxi " + taxiId + " is inside the predefined area again");

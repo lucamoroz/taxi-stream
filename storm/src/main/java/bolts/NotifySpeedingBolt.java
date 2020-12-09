@@ -1,6 +1,5 @@
 package bolts;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.storm.task.OutputCollector;
@@ -17,14 +16,15 @@ public class NotifySpeedingBolt extends BaseRichBolt {
     Map<Integer, Long> lastLogs = new HashMap<>();
     Logger logger;
 
-    Double speedLimitMPerSecond;
+    Double speedLimitKMPerHour;
 
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext,
         OutputCollector outputCollector) {
         this.outputCollector = outputCollector;
         lastLogs = new HashMap<>();
-        speedLimitMPerSecond = 13.89;
+        speedLimitKMPerHour = 50.;
+        this.logger = new Logger("bolts.NotifySpeedingBolt");
     }
 
     //TODO: check, whether there are race conditions (include timestamp)
@@ -37,17 +37,16 @@ public class NotifySpeedingBolt extends BaseRichBolt {
 
         long timestamp = tuple.getLongByField("timestamp");
 
-        if(!lastLogs.containsKey(taxiId) && speed > speedLimitMPerSecond){
+        if(!lastLogs.containsKey(taxiId)){
+            if (speed.compareTo(speedLimitKMPerHour) > 0) {
+                //TODO: add date
+                lastLogs.put(taxiId, timestamp);
 
-            //TODO: add date
-            lastLogs.put(taxiId, timestamp);
-
-            System.out.println("Taxi " + taxiId + " is speeding, implement notification!");
-            //TODO: implement frontend notification
-
-
+                System.out.println("Taxi " + taxiId + " is speeding, implement notification!");
+                //TODO: implement frontend notification
+            }
         } else {
-            if( speed <= speedLimitMPerSecond &&
+            if( speed.compareTo(speedLimitKMPerHour) <= 0 &&
             lastLogs.get(taxiId) < timestamp){
                 lastLogs.remove(taxiId);
             }

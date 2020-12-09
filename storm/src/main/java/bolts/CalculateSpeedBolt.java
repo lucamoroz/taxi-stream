@@ -37,9 +37,9 @@ public class CalculateSpeedBolt extends BaseRichBolt {
         if (lastLogs.containsKey(taxiId)) {
             TaxiLog lastLog = lastLogs.get(taxiId);
 
-            double distanceKm = CoordinateHelper.calculateDistance(lastLog, currentLog) / 1000d;
+            double distanceKm = Math.abs(CoordinateHelper.calculateDistance(lastLog, currentLog)) / 1000d;
 
-            double timeDiffHours = (currentLog.getTimestamp() - lastLog.getTimestamp()) / 3600d;
+            double timeDiffHours = Math.abs(currentLog.getTimestamp() - lastLog.getTimestamp()) / 3600d;
 
             // Ignore logs with the same timestamp
             if (timeDiffHours != 0) {
