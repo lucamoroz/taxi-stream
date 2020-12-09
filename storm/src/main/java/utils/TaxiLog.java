@@ -1,23 +1,21 @@
 package utils;
 
-import java.util.Date;
-
 public class TaxiLog {
-    private Date timestamp;
+    private long timestamp;
     private double longitude;
     private double latitude;
 
-    public TaxiLog(Date timestamp, double longitude, double latitude) {
+    public TaxiLog(long timestamp, double longitude, double latitude) {
         this.timestamp = timestamp;
         this.longitude = longitude;
         this.latitude = latitude;
     }
 
-    public Date getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(Long timestamp) {
         this.timestamp = timestamp;
     }
 

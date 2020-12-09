@@ -3,7 +3,9 @@ package utils;
 public class CoordinateHelper {
     private static final int EARTH_RADIUS = 6371000;
 
-    // todo unit of measure?
+    /**
+     * @return distance in meters
+     */
     public static double calculateDistance(TaxiLog t1, TaxiLog t2) {
         double phi1 = (t1.getLatitude() / 360) * 2 * Math.PI;
         double phi2 = (t2.getLatitude() / 360) * 2 * Math.PI;
