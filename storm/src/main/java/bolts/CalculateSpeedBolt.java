@@ -20,6 +20,8 @@ public class CalculateSpeedBolt extends BaseRichBolt {
     Map<Integer, TaxiLog> lastLogs = new HashMap<>();
     Logger logger;
 
+    private int unixTimeSecondsToMS = 1000;
+
     @Override
     public void prepare(Map<String, Object> topoConf, TopologyContext context, OutputCollector collector) {
         _collector = collector;
@@ -32,8 +34,11 @@ public class CalculateSpeedBolt extends BaseRichBolt {
         int taxiId = input.getIntegerByField("taxi_id");
         double latitude = input.getDoubleByField("latitude");
         double longitude = input.getDoubleByField("longitude");
+        long datetimeSecondsUnix = input.getIntegerByField("datetime");
 
-        TaxiLog currentLog = new TaxiLog(new Date(), latitude, longitude);
+        Date newDate = new Date(datetimeSecondsUnix * unixTimeSecondsToMS);
+
+        TaxiLog currentLog = new TaxiLog(newDate, latitude, longitude);
 
         if (lastLogs.containsKey(taxiId)) {
             TaxiLog lastLog = lastLogs.get(taxiId);
@@ -44,7 +49,7 @@ public class CalculateSpeedBolt extends BaseRichBolt {
 
             double speed = distance/timeDiff;
 
-            _collector.emit(new Values(taxiId, speed, currentLog.getTimestamp()));
+            _collector.emit(new Values(taxiId, speed, currentLog.getTimestamp().getTime()));
             logger.log("speed: " + speed);
         }
         lastLogs.put(taxiId, currentLog);
@@ -52,6 +57,6 @@ public class CalculateSpeedBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("id", "speed", "timestamp"));
+        declarer.declare(new Fields("id", "speed", "timestampMS"));
     }
 }

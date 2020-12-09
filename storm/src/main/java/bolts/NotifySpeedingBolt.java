@@ -27,7 +27,6 @@ public class NotifySpeedingBolt extends BaseRichBolt {
         speedLimitMPerSecond = 13.89;
     }
 
-    //TODO: check, whether there are race conditions (include timestamp)
     @Override
     public void execute(Tuple tuple) {
 
@@ -35,17 +34,20 @@ public class NotifySpeedingBolt extends BaseRichBolt {
 
         Double speed = tuple.getDoubleByField("speed");
 
+        long datetimeSecondsUnixMS = tuple.getIntegerByField("timestampMS");
+        Date newDate = new Date(datetimeSecondsUnixMS);
+
         if(!lastLogs.containsKey(taxiId) && speed > speedLimitMPerSecond){
 
-            //TODO: add date
-            lastLogs.put(taxiId, new Date());
+            lastLogs.put(taxiId, newDate);
 
             System.out.println("Taxi " + taxiId + " is speeding, implement notification!");
             //TODO: implement frontend notification
 
 
         } else {
-            if( speed <= speedLimitMPerSecond){
+            if( speed <= speedLimitMPerSecond &&
+                lastLogs.get(taxiId).before(newDate)){
                 lastLogs.remove(taxiId);
             }
         }

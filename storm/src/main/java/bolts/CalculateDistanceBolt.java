@@ -19,6 +19,7 @@ import java.util.Map;
 public class CalculateDistanceBolt extends AbstractRedisBolt {
     Map<Integer, Object[]> overallDistances = new HashMap<>();
     Logger logger;
+    private int unixTimeSecondsToMS = 1000;
 
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext, OutputCollector collector) {
@@ -39,8 +40,11 @@ public class CalculateDistanceBolt extends AbstractRedisBolt {
         int taxiId = input.getIntegerByField("taxi_id");
         double latitude = input.getDoubleByField("latitude");
         double longitude = input.getDoubleByField("longitude");
+        long datetimeSecondsUnix = input.getIntegerByField("datetime");
 
-        TaxiLog currentLog = new TaxiLog(new Date(), latitude, longitude);
+        Date newDate = new Date(datetimeSecondsUnix * unixTimeSecondsToMS);
+
+        TaxiLog currentLog = new TaxiLog(newDate, latitude, longitude);
 
         double currentOverallDistance = 0;
 

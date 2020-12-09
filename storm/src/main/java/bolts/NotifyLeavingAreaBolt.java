@@ -27,6 +27,8 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
     private Integer maxDistanceToBeijingCenterMeter = 10000;
 
+    private int unixTimeSecondsToMS = 1000;
+
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext,
         OutputCollector outputCollector) {
@@ -42,8 +44,11 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         int taxiId = tuple.getIntegerByField("taxi_id");
         Double longitude = tuple.getDoubleByField("longitude");
         Double latitude = tuple.getDoubleByField("latitude");
+        long datetimeSecondsUnix = tuple.getIntegerByField("datetime");
 
-        TaxiLog currentLog = new TaxiLog(new Date(), latitude, longitude);
+        Date newDate = new Date(datetimeSecondsUnix * unixTimeSecondsToMS);
+
+        TaxiLog currentLog = new TaxiLog(newDate, latitude, longitude);
 
         Double distanceToBeijingCenterMeter = CoordinateHelper.calculateDistance(currentLog, centerBeijingLocation);
 

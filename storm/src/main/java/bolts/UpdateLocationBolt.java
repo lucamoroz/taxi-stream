@@ -38,6 +38,8 @@ public class UpdateLocationBolt extends AbstractRedisBolt {
         double latitude = input.getDoubleByField("latitude");
         double longitude = input.getDoubleByField("longitude");
 
+        //TODO: add timestamp to prevent race conditions? (Same as in notification bolts)
+
         JedisCommands jedisCommands = null;
         try {
             jedisCommands = getInstance();
