@@ -14,7 +14,7 @@ public class NotifySpeedingBolt extends BaseRichBolt {
 
     OutputCollector outputCollector;
 
-    Map<Integer, Date> lastLogs = new HashMap<>();
+    Map<Integer, Long> lastLogs = new HashMap<>();
     Logger logger;
 
     Double speedLimitMPerSecond;
@@ -35,17 +35,20 @@ public class NotifySpeedingBolt extends BaseRichBolt {
 
         Double speed = tuple.getDoubleByField("speed");
 
+        long timestamp = tuple.getLongByField("timestamp");
+
         if(!lastLogs.containsKey(taxiId) && speed > speedLimitMPerSecond){
 
             //TODO: add date
-            lastLogs.put(taxiId, new Date());
+            lastLogs.put(taxiId, timestamp);
 
             System.out.println("Taxi " + taxiId + " is speeding, implement notification!");
             //TODO: implement frontend notification
 
 
         } else {
-            if( speed <= speedLimitMPerSecond){
+            if( speed <= speedLimitMPerSecond &&
+            lastLogs.get(taxiId) < timestamp){
                 lastLogs.remove(taxiId);
             }
         }

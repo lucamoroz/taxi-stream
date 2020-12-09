@@ -33,7 +33,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         this.outputCollector = outputCollector;
         lastLogs = new HashMap<>();
 
-        centerBeijingLocation = new TaxiLog(new Date(), longitudeBeijing, latitudeBeijing);
+        centerBeijingLocation = new TaxiLog(0, longitudeBeijing, latitudeBeijing);
     }
 
     @Override
@@ -42,8 +42,10 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         int taxiId = tuple.getIntegerByField("taxi_id");
         Double longitude = tuple.getDoubleByField("longitude");
         Double latitude = tuple.getDoubleByField("latitude");
+        long timestamp = tuple.getLongByField("timestamp");
 
-        TaxiLog currentLog = new TaxiLog(new Date(), latitude, longitude);
+
+        TaxiLog currentLog = new TaxiLog(timestamp, latitude, longitude);
 
         Double distanceToBeijingCenterMeter = CoordinateHelper.calculateDistance(currentLog, centerBeijingLocation);
 
@@ -60,7 +62,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
             TaxiLog existingLog = this.lastLogs.get(taxiId);
 
             if (distanceToBeijingCenterMeter <= maxDistanceToBeijingCenterMeter &&
-                existingLog.getTimestamp().before(currentLog.getTimestamp())){
+                existingLog.getTimestamp() <= currentLog.getTimestamp()){
 
                 this.logger.log("Taxi " + taxiId + " is inside the predefined area again");
 
