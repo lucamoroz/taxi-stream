@@ -65,5 +65,5 @@ class TaxiLogProducer:
 
     def _send_log(self, log: TaxiLog):
         value = log.to_json()
-        print("Sending: ", value)
+        print("LOG|Sending: ", value)
         self.kafka_producer.send(topic=self.CONST_TOPIC, value=value, key=log.taxi_id)

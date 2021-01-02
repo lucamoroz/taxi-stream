@@ -37,16 +37,16 @@ public class CalculateSpeedBolt extends BaseRichBolt {
         if (lastLogs.containsKey(taxiId)) {
             TaxiLog lastLog = lastLogs.get(taxiId);
 
-            double distanceKm = CoordinateHelper.calculateDistance(lastLog, currentLog) / 1000d;
+            double distanceKm = Math.abs(CoordinateHelper.calculateDistance(lastLog, currentLog)) / 1000d;
 
-            double timeDiffHours = (currentLog.getTimestamp() - lastLog.getTimestamp()) / 3600d;
+            double timeDiffHours = Math.abs(currentLog.getTimestamp() - lastLog.getTimestamp()) / 3600d;
 
             // Ignore logs with the same timestamp
             if (timeDiffHours != 0) {
                 // speed as km/h
                 double speed = distanceKm/timeDiffHours;
 
-                _collector.emit(new Values(taxiId, speed));
+                _collector.emit(new Values(taxiId, speed, currentLog.getTimestamp()));
                 logger.log(String.format("speed of taxi %d: %.2f km/h ", taxiId, speed));
             }
         }
@@ -56,6 +56,6 @@ public class CalculateSpeedBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("id", "speed"));
+        declarer.declare(new Fields("id", "speed", "timestamp"));
     }
 }

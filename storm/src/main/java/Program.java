@@ -37,9 +37,13 @@ public class Program {
         topoBuilder.setBolt("updateLocationBolt", new UpdateLocationBolt(poolConfig))
                 .fieldsGrouping("kafkaSpout", new Fields("taxi_id"));
 
-        topoBuilder.setSpout("notifyLeavingAreaSpout", new NotifyLeavingAreaSpout());
         topoBuilder.setBolt("notifyLeavingAreaBolt", new NotifyLeavingAreaBolt())
-                .fieldsGrouping("notifyLeavingAreaSpout", new Fields("id"));
+                .fieldsGrouping("kafkaSpout", new Fields("taxi_id"));
+
+        topoBuilder.setBolt("notifySpeedingBolt", new NotifySpeedingBolt())
+            .fieldsGrouping("calculateSpeedBolt", new Fields("id"));
+
+
         //TODO: add notify Speeding Bolt from "Calculate Speed" bolt
 
         try {
@@ -50,7 +54,7 @@ public class Program {
             config.setMaxSpoutPending(5000);
 
             cluster.submitTopology("Program", config, topoBuilder.createTopology());
-            Thread.sleep( 200000);
+            Thread.sleep( 2000000000);
             cluster.shutdown();
         } catch (Exception e) {
             e.printStackTrace();
