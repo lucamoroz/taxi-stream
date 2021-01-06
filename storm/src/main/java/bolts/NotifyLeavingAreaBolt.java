@@ -82,6 +82,13 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         Double latitude = tuple.getDoubleByField("latitude");
         long timestamp = tuple.getLongByField("timestamp");
 
+        System.out.println("Taxi is leaving a predefined area, implement http notification!");
+        sendViaTCP();
+
+        if(!idNotificationMap.containsKey(idNotification)){
+            int idTaxi = tuple.getInteger(1);
+            //TODO: calcualte distance
+            Integer distanceToBeijingCenter = 0; //set the distance to Beijing center in km
 
         TaxiLog currentLog = new TaxiLog(timestamp, latitude, longitude);
 
@@ -94,6 +101,8 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
                 this.logger.log("Taxi " + taxiId + " is leaving a predefined area!");
 
                 this.lastLogs.put(taxiId, currentLog);
+
+
             if (distanceToBeijingCenter > 10) {
                 //Inform the frontend
                 System.out.println("Taxi " + idTaxi + " is leaving a predefined area, implement http notification!");
@@ -109,7 +118,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
                 this.lastLogs.remove(taxiId);
                 //TCP
-                sendViaTCP();
+
 
                 //UDP
 //                String str = "Car is leaving the area!";
