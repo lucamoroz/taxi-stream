@@ -22,9 +22,34 @@ const setupWebSockerServer = () => {
     });
   });
 };
+
+
+const notifySetupWebSockerServer = () => {
+  const webSocketServer = new WebSocketServer(8082);
+  webSocketServer.on("connection", function (webSocket: WebSocket) {
+    webSockets.push(webSocket);
+    console.log("8082 opened");
+    webSocket.on("8082 close", function () {
+      console.log("8082 closed");
+      webSockets = webSockets.filter(ws => ws !== webSocket);
+    });
+    webSocket.on("8082 message", function (message: string) {
+      console.log(message);
+      webSocket.send(message + " in 8082 he said");
+    });
+  });
+};
+
+
+
+
 const broadcast = (message: string) => {
   webSockets.forEach(webSocket => webSocket.send(message));
 };
+
+
+
+
 
 const setupRedisFetcher = async () => {
   const redis = await connect({
@@ -61,5 +86,9 @@ const setupWebServer = () => {
 
 console.log("Starting..");
 setupWebSockerServer();
+
+
+notifySetupWebSockerServer();
+
 setupWebServer();
 setupRedisFetcher();
