@@ -83,12 +83,12 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         Double latitude = tuple.getDoubleByField("latitude");
         long timestamp = tuple.getLongByField("timestamp");
 
-        System.out.println("Taxi is leaving a predefined area, implement http notification!");
+        this.logger.log("Before going to SendViaTCP");
         sendViaTCP();
 
         TaxiLog currentLog = new TaxiLog(timestamp, latitude, longitude);
-
-        Double distanceToBeijingCenterMeter = CoordinateHelper.calculateDistance(currentLog, centerBeijingLocation);
+        Double distanceToBeijingCenterMeter = 0.;
+        distanceToBeijingCenterMeter = CoordinateHelper.calculateDistance(currentLog, centerBeijingLocation);
 
 
         //TODO: include timestamp check
@@ -130,11 +130,21 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
     private void sendViaTCP(){
         try {
+            
+            this.logger.log("Inside SendViaTCP");
+
             out.println("Car is leaving the area!");
-            System.out.println(in.readLine());
+
+            this.logger.log("Inside SendViaTCP2");
+
+            //this.logger.log(in.readLine());
+
+            this.logger.log("Inside SendViaTCP3");
             tcpSocket.close();
             out.close();
             in.close();
+            
+            this.logger.log("Inside SendViaTCP after close");
         } catch (IOException e) {
             e.printStackTrace();
         }
