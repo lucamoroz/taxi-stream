@@ -1,21 +1,24 @@
 package bolts;
 
-import org.apache.storm.task.OutputCollector;
-import org.apache.storm.task.TopologyContext;
-import org.apache.storm.topology.OutputFieldsDeclarer;
-import org.apache.storm.topology.base.BaseRichBolt;
-import org.apache.storm.tuple.Tuple;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import utils.CoordinateHelper;
 import utils.Logger;
 import utils.TaxiLog;
+
+import org.apache.storm.task.OutputCollector;
+import org.apache.storm.task.TopologyContext;
+import org.apache.storm.topology.OutputFieldsDeclarer;
+import org.apache.storm.topology.base.BaseRichBolt;
+import org.apache.storm.tuple.Tuple;
 
 public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
@@ -49,7 +52,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
         //TCP
         try {
-            tcpSocket = new Socket("dashboard-backend", 8081);
+            tcpSocket = new Socket("dashboard-backend", 8082);
             out = new PrintWriter(tcpSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(tcpSocket.getInputStream()));
         } catch (IOException e) {
@@ -137,7 +140,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
     private void sendViaUDP(){
         try {
             DatagramPacket packet
-                    = new DatagramPacket(buff, buff.length, address, 8080);
+                    = new DatagramPacket(buff, buff.length, address, 8082);
             udpSocket.send(packet);
             packet = new DatagramPacket(buff, buff.length);
             udpSocket.receive(packet);
