@@ -25,17 +25,19 @@ const setupWebSockerServer = () => {
 
 
 const notifySetupWebSockerServer = () => {
-  const webSocketServer = new WebSocketServer(8082);
-  webSocketServer.on("connection", function (webSocket: WebSocket) {
-    webSockets.push(webSocket);
+  console.log("Hello")
+  const wss = new WebSocketServer(8082);
+  console.log("webSocketServer created!")
+  wss.on("connection", function (ws: WebSocket) {
+    webSockets.push(ws);
     console.log("8082 opened");
-    webSocket.on("8082 close", function () {
+    ws.on("close", function () {
       console.log("8082 closed");
-      webSockets = webSockets.filter(ws => ws !== webSocket);
+      webSockets = webSockets.filter(ws => ws !== ws);
     });
-    webSocket.on("8082 message", function (message: string) {
+    ws.on("message", function (message: string) {
       console.log(message);
-      webSocket.send(message + " in 8082 he said");
+      ws.send(message + " in 8082 he said");
     });
   });
 };
@@ -85,7 +87,7 @@ const setupWebServer = () => {
 };
 
 console.log("Starting..");
-// setupWebSockerServer();
+setupWebSockerServer();
 
 
 notifySetupWebSockerServer();
