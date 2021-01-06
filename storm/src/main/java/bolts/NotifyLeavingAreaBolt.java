@@ -35,15 +35,9 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
     private Integer maxDistanceToBeijingCenterKiloMeter = 10;
 
-    //TCP
-    Socket tcpSocket;
-    PrintWriter out;
-    BufferedReader in;
-
-    //UDP
-    InetAddress address;
-    DatagramSocket udpSocket;
-    byte[] buff;
+    private Socket tcpSocket;
+    private PrintWriter out;
+    private BufferedReader in;
 
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext,
@@ -51,7 +45,6 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         this.outputCollector = outputCollector;
         lastLogs = new HashMap<>();
 
-        //TCP
         try {
             tcpSocket = new Socket("dashboard-backend", 8082);
             out = new PrintWriter(tcpSocket.getOutputStream(), true);
@@ -61,14 +54,6 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
             e.printStackTrace();
         }
 
-        //UDP
-//        try {
-//            udpSocket = new DatagramSocket();
-//            address = InetAddress.getByName("dashboard-backend");
-//        } catch (SocketException | UnknownHostException e) {
-//            System.out.println("Either socket or unknown host exception!");
-//            e.printStackTrace();
-//        }
         lastLogs = new HashMap<>();
 
         centerBeijingLocation = new TaxiLog(0, longitudeBeijing, latitudeBeijing);
@@ -108,13 +93,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
                     this.logger.log("Taxi " + taxiId + " is inside the predefined area again");
 
                     this.lastLogs.remove(taxiId);
-                    //TCP
 
-
-                    //UDP
-//                String str = "Car is leaving the area!";
-//                buff = str.getBytes();
-//                sendViaUDP();
                 }
             }
 
@@ -149,21 +128,4 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
             e.printStackTrace();
         }
     }
-
-    private void sendViaUDP(){
-        try {
-            DatagramPacket packet
-                    = new DatagramPacket(buff, buff.length, address, 8082);
-            udpSocket.send(packet);
-            packet = new DatagramPacket(buff, buff.length);
-            udpSocket.receive(packet);
-            String received = new String(
-                    packet.getData(), 0, packet.getLength());
-            System.out.println(received);
-        }catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
 }
