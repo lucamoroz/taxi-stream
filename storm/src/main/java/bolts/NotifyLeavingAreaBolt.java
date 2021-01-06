@@ -10,15 +10,16 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
-import utils.CoordinateHelper;
-import utils.Logger;
-import utils.TaxiLog;
 
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Tuple;
+
+import utils.CoordinateHelper;
+import utils.Logger;
+import utils.TaxiLog;
 
 public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
@@ -43,14 +44,12 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
     InetAddress address;
     DatagramSocket udpSocket;
     byte[] buff;
-    //TODO !??!?!
-    private HashMap<Object, Object> idNotificationMap;
 
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext,
                         OutputCollector outputCollector) {
         this.outputCollector = outputCollector;
-        idNotificationMap = new HashMap<>();
+        lastLogs = new HashMap<>();
 
         //TCP
         try {
@@ -87,51 +86,42 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         System.out.println("Taxi is leaving a predefined area, implement http notification!");
         sendViaTCP();
 
-        if (!idNotificationMap.containsKey(idNotification)) {
-            int idTaxi = tuple.getInteger(1);
-            //TODO: calcualte distance
-            Integer distanceToBeijingCenter = 0; //set the distance to Beijing center in km
+        TaxiLog currentLog = new TaxiLog(timestamp, latitude, longitude);
 
-            TaxiLog currentLog = new TaxiLog(timestamp, latitude, longitude);
-
-            Double distanceToBeijingCenterMeter = CoordinateHelper.calculateDistance(currentLog, centerBeijingLocation);
+        Double distanceToBeijingCenterMeter = CoordinateHelper.calculateDistance(currentLog, centerBeijingLocation);
 
 
-            //TODO: include timestamp check
-            if (!lastLogs.containsKey(taxiId)) {
-                if (distanceToBeijingCenterMeter > maxDistanceToBeijingCenterKiloMeter) {
-                    this.logger.log("Taxi " + taxiId + " is leaving a predefined area!");
+        //TODO: include timestamp check
+        if (!lastLogs.containsKey(taxiId)) {
+            if (distanceToBeijingCenterMeter > maxDistanceToBeijingCenterKiloMeter) {
+                this.logger.log("Taxi " + taxiId + " is leaving a predefined area!");
 
-                    this.lastLogs.put(taxiId, currentLog);
-
-
-                    if (distanceToBeijingCenter > 10) {
-                        //Inform the frontend
-                        System.out.println("Taxi " + idTaxi + " is leaving a predefined area, implement http notification!");
-                        //TODO: implement frontend notification
-                    }
-                } else {
-                    TaxiLog existingLog = this.lastLogs.get(taxiId);
-
-                    if (distanceToBeijingCenterMeter <= maxDistanceToBeijingCenterKiloMeter &&
-                            existingLog.getTimestamp() <= currentLog.getTimestamp()) {
-
-                        this.logger.log("Taxi " + taxiId + " is inside the predefined area again");
-
-                        this.lastLogs.remove(taxiId);
-                        //TCP
+                this.lastLogs.put(taxiId, currentLog);
 
 
-                        //UDP
+            } else {
+                TaxiLog existingLog = this.lastLogs.get(taxiId);
+
+                if (distanceToBeijingCenterMeter <= maxDistanceToBeijingCenterKiloMeter &&
+                        existingLog.getTimestamp() <= currentLog.getTimestamp()) {
+
+                    this.logger.log("Taxi " + taxiId + " is inside the predefined area again");
+
+                    this.lastLogs.remove(taxiId);
+                    //TCP
+
+
+                    //UDP
 //                String str = "Car is leaving the area!";
 //                buff = str.getBytes();
 //                sendViaUDP();
-                    }
                 }
-
             }
+
         }
     }
+        
+    
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
