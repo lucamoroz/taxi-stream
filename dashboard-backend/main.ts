@@ -85,7 +85,7 @@ const setupWebServer = () => {
 };
 
 console.log("Starting..");
-setupWebSockerServer();
+// setupWebSockerServer();
 
 
 notifySetupWebSockerServer();

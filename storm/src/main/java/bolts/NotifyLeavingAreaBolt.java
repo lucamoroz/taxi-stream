@@ -64,6 +64,9 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         //1 ... id of the taxi
         int idNotification = tuple.getInteger(0);
 
+        System.out.println("Taxi is leaving a predefined area, implement http notification!");
+        sendViaTCP();
+
         if(!idNotificationMap.containsKey(idNotification)){
             int idTaxi = tuple.getInteger(1);
             //TODO: calcualte distance
@@ -72,12 +75,14 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
             idNotificationMap.put(idNotification, idTaxi);
 
+
+
             if (distanceToBeijingCenter > 10) {
                 //Inform the frontend
                 System.out.println("Taxi " + idTaxi + " is leaving a predefined area, implement http notification!");
                 //TODO: implement frontend notification
                 //TCP
-                sendViaTCP();
+
 
                 //UDP
 //                String str = "Car is leaving the area!";

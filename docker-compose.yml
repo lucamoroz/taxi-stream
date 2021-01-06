@@ -8,12 +8,14 @@ services:
     ports:
       - 3000:3000
   dashboard-backend:
+    hostname: dashboard-backend
     build:
       context: dashboard-backend
       dockerfile: ./Dockerfile
     ports:
       - 8080:8080
       - 8081:8081
+      - 8082:8082
   redis:
     build:
       context: redis

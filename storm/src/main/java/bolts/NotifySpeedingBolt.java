@@ -1,6 +1,7 @@
 package bolts;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -29,9 +30,14 @@ public class NotifySpeedingBolt extends BaseRichBolt {
         idNotificationMap = new HashMap<>();
         speedLimit = 50;
 
-        socket = new Socket("dashboard-backend", 8082);
-        out = new PrintWriter(clientSocket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        try {
+            socket = new Socket("dashboard-backend", 8082);
+            out = new PrintWriter(socket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -42,7 +48,7 @@ public class NotifySpeedingBolt extends BaseRichBolt {
         //2 ... speed of the taxi
         int idNotification = tuple.getInteger(0);
 
-        this.sendMessage("Example message from backend!");
+       // this.sendMessage("Example message from backend!");
 
         if(!idNotificationMap.containsKey(idNotification)){
 
@@ -67,14 +73,27 @@ public class NotifySpeedingBolt extends BaseRichBolt {
     }
 
     public String sendMessage(String msg) {
-        out.println(msg);
-        String resp = in.readLine();
+
+        String resp = null;
+        try {
+            resp = in.readLine();
+            out.println(msg);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return resp;
+
     }
 
     public void stopConnection() {
-        in.close();
-        out.close();
-        clientSocket.close();
+
+        try {
+            socket.close();
+            in.close();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
