@@ -1,13 +1,7 @@
 package bolts;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.Socket;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +14,7 @@ import org.apache.storm.tuple.Tuple;
 import utils.CoordinateHelper;
 import utils.Logger;
 import utils.TaxiLog;
+import utils.WebsocketClientEndpoint;
 
 public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
@@ -35,24 +30,33 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
     private Integer maxDistanceToBeijingCenterKiloMeter = 10;
 
-    private Socket tcpSocket;
-    private PrintWriter out;
-    private BufferedReader in;
+    
+    private WebsocketClientEndpoint clientEndPoint;
 
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext,
-                        OutputCollector outputCollector) {
+    OutputCollector outputCollector) {
         this.outputCollector = outputCollector;
         lastLogs = new HashMap<>();
 
+        
+
         try {
-            tcpSocket = new Socket("dashboard-backend", 8082);
-            out = new PrintWriter(tcpSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(tcpSocket.getInputStream()));
-        } catch (IOException e) {
-            System.out.println("Cant build the socket!");
-            e.printStackTrace();
+            // open websocket
+            this.clientEndPoint = new WebsocketClientEndpoint(new URI("ws://dashboard-backend:8082"));
+
+            // add listener
+            clientEndPoint.addMessageHandler(new WebsocketClientEndpoint.MessageHandler() {
+                public void handleMessage(String message) {
+                    System.out.println(message);
+                }
+            });
+
+
+        } catch (URISyntaxException ex) {
+            System.err.println("URISyntaxException exception: " + ex.getMessage());
         }
+
 
         lastLogs = new HashMap<>();
 
@@ -69,7 +73,16 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         long timestamp = tuple.getLongByField("timestamp");
 
         this.logger.log("Before going to SendViaTCP");
-        sendViaTCP();
+        
+
+        clientEndPoint.sendMessage("{'event':'addChannel','channel':'ok_btccny_ticker'}");
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         TaxiLog currentLog = new TaxiLog(timestamp, latitude, longitude);
         Double distanceToBeijingCenterMeter = 0.;
@@ -93,7 +106,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
                     this.logger.log("Taxi " + taxiId + " is inside the predefined area again");
 
                     this.lastLogs.remove(taxiId);
-
+                    
                 }
             }
 
@@ -107,25 +120,4 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         //there is only output to the frontend
     }
 
-    private void sendViaTCP(){
-        try {
-            
-            this.logger.log("Inside SendViaTCP");
-
-            out.println("Car is leaving the area!");
-
-            this.logger.log("Inside SendViaTCP2");
-
-            //this.logger.log(in.readLine());
-
-            this.logger.log("Inside SendViaTCP3");
-            tcpSocket.close();
-            out.close();
-            in.close();
-            
-            this.logger.log("Inside SendViaTCP after close");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
