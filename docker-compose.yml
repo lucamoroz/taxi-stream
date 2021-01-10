@@ -31,10 +31,14 @@ services:
       - kafka
     volumes:
       - type: bind
-        source: ./DataEmitter/data/logs.txt
-        target: /data/logs.txt
+        source: ./DataEmitter/data
+        target: /data/
+        read_only: false
+      - type: bind
+        source: ${TAXI_DATASET}
+        target: /dataset/
         read_only: true
-    command: sh -c "sleep 5 && python ./main.py 1 -1"
+    command: sh -c "sleep 5 && python -u ./main.py --dataset /dataset/ --sorted_logs /data/logs.txt --speed_multiplier 1 --max_taxis -1"
 
   storm:
     build:
