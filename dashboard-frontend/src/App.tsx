@@ -11,19 +11,21 @@ export const App = () => {
   useEffect(() => {
     const endpoint = "ws://127.0.0.1:8081";
     const ws: WebSocket = new WebSocket(endpoint);
-    ws.onopen = () => console.log("WebSocket-Connection established!");
+    ws.onopen = () => {
+      console.log("ws connected!");
+    };
     ws.onmessage = (message: MessageEvent) => {
       if (!message) return;
-      const dataObjects: {
+      const datas: {
         taxi: string;
         location: string;
         overall_distance: string;
       }[] = JSON.parse(message.data);
       setData({
-        totalTaxis: dataObjects.length,
-        overallDistance: dataObjects.reduce((p, c) => p + +c.overall_distance, 0),
+        totalTaxis: datas.length,
+        overallDistance: datas.reduce((p, c) => p + +c.overall_distance, 0),
         locations: Object.fromEntries(
-          dataObjects.map(d => [
+          datas.map(d => [
             d.taxi,
             d.location.split(", ").map(v => +v) as [number, number],
           ])

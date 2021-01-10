@@ -2,11 +2,13 @@ package bolts;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Tuple;
+
 import utils.Logger;
 
 public class NotifySpeedingBolt extends BaseRichBolt {
@@ -42,7 +44,7 @@ public class NotifySpeedingBolt extends BaseRichBolt {
                 //TODO: add date
                 lastLogs.put(taxiId, timestamp);
 
-                System.out.println("Taxi " + taxiId + " is speeding, implement notification!");
+                this.logger.log("Taxi " + taxiId + " is speeding, implement notification!");
                 //TODO: implement frontend notification
             }
         } else {

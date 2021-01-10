@@ -1,13 +1,22 @@
 package bolts;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Tuple;
 
-import java.util.HashMap;
-import java.util.Map;
 import utils.CoordinateHelper;
 import utils.Logger;
 import utils.TaxiLog;
@@ -26,10 +35,25 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
     private Integer maxDistanceToBeijingCenterKiloMeter = 10;
 
+    private Socket tcpSocket;
+    private PrintWriter out;
+    private BufferedReader in;
+
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext,
-        OutputCollector outputCollector) {
+                        OutputCollector outputCollector) {
         this.outputCollector = outputCollector;
+        lastLogs = new HashMap<>();
+
+        try {
+            tcpSocket = new Socket("dashboard-backend", 8082);
+            out = new PrintWriter(tcpSocket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(tcpSocket.getInputStream()));
+        } catch (IOException e) {
+            System.out.println("Cant build the socket!");
+            e.printStackTrace();
+        }
+
         lastLogs = new HashMap<>();
 
         centerBeijingLocation = new TaxiLog(0, longitudeBeijing, latitudeBeijing);
@@ -44,39 +68,64 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         Double latitude = tuple.getDoubleByField("latitude");
         long timestamp = tuple.getLongByField("timestamp");
 
+        this.logger.log("Before going to SendViaTCP");
+        sendViaTCP();
 
         TaxiLog currentLog = new TaxiLog(timestamp, latitude, longitude);
-
-        Double distanceToBeijingCenterMeter = CoordinateHelper.calculateDistance(currentLog, centerBeijingLocation);
+        Double distanceToBeijingCenterMeter = 0.;
+        distanceToBeijingCenterMeter = CoordinateHelper.calculateDistance(currentLog, centerBeijingLocation);
 
 
         //TODO: include timestamp check
-        if(!lastLogs.containsKey(taxiId)){
+        if (!lastLogs.containsKey(taxiId)) {
             if (distanceToBeijingCenterMeter > maxDistanceToBeijingCenterKiloMeter) {
                 this.logger.log("Taxi " + taxiId + " is leaving a predefined area!");
 
                 this.lastLogs.put(taxiId, currentLog);
-                //TODO: implement frontend notification
+
+
+            } else {
+                TaxiLog existingLog = this.lastLogs.get(taxiId);
+
+                if (distanceToBeijingCenterMeter <= maxDistanceToBeijingCenterKiloMeter &&
+                        existingLog.getTimestamp() <= currentLog.getTimestamp()) {
+
+                    this.logger.log("Taxi " + taxiId + " is inside the predefined area again");
+
+                    this.lastLogs.remove(taxiId);
+
+                }
             }
-        } else {
-            TaxiLog existingLog = this.lastLogs.get(taxiId);
 
-            if (distanceToBeijingCenterMeter <= maxDistanceToBeijingCenterKiloMeter &&
-                existingLog.getTimestamp() <= currentLog.getTimestamp()){
-
-                this.logger.log("Taxi " + taxiId + " is inside the predefined area again");
-
-                this.lastLogs.remove(taxiId);
-
-            }
         }
-
     }
+        
+    
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         //there is only output to the frontend
     }
 
+    private void sendViaTCP(){
+        try {
+            
+            this.logger.log("Inside SendViaTCP");
 
+            out.println("Car is leaving the area!");
+
+            this.logger.log("Inside SendViaTCP2");
+
+            //this.logger.log(in.readLine());
+
+            this.logger.log("Inside SendViaTCP3");
+            tcpSocket.close();
+            out.close();
+            in.close();
+            
+            this.logger.log("Inside SendViaTCP after close");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
