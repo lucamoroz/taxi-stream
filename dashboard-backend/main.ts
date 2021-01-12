@@ -23,8 +23,8 @@ const setupWebSockerServer = () => {
   });
 };
 
-
-const notifySetupWebSockerServer = () => {
+//NotifyLeavingAreBoltSocket
+const notifyLeavingAreaSetupWebSockerServer = () => {
   console.log("Hello")
   const wss = new WebSocketServer(8082);
   console.log("webSocketServer created!")
@@ -38,6 +38,25 @@ const notifySetupWebSockerServer = () => {
     ws.on("message", function (message: string) {
       console.log(message);
       ws.send(message + " in 8082 he said");
+    });
+  });
+};
+
+//NotifySpeedingBolt socket
+const notifySpeedingSetupWebSockerServer = () => {
+  console.log("Hello")
+  const wss = new WebSocketServer(8083);
+  console.log("webSocketServer created!")
+  wss.on("connection", function (ws: WebSocket) {
+    webSockets.push(ws);
+    console.log("8083 opened");
+    ws.on("close", function () {
+      console.log("8083 closed");
+      webSockets = webSockets.filter(ws => ws !== ws);
+    });
+    ws.on("message", function (message: string) {
+      console.log(message);
+      ws.send(message + " in 8083 he said");
     });
   });
 };
@@ -89,8 +108,8 @@ const setupWebServer = () => {
 console.log("Starting..");
 setupWebSockerServer();
 
-
-notifySetupWebSockerServer();
+notifyLeavingAreaSetupWebSockerServer();
+notifySpeedingSetupWebSockerServer();
 
 setupWebServer();
 setupRedisFetcher();

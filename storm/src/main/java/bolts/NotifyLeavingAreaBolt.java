@@ -39,7 +39,10 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         this.outputCollector = outputCollector;
         lastLogs = new HashMap<>();
 
-        
+        lastLogs = new HashMap<>();
+
+        centerBeijingLocation = new TaxiLog(0, longitudeBeijing, latitudeBeijing);
+        this.logger = new Logger("bolts.NotifyLeavingAreaBolt");
 
         try {
             // open websocket
@@ -52,16 +55,9 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
                 }
             });
 
-
         } catch (URISyntaxException ex) {
-            System.err.println("URISyntaxException exception: " + ex.getMessage());
+            this.logger.log("URISyntaxException exception: " + ex.getMessage());
         }
-
-
-        lastLogs = new HashMap<>();
-
-        centerBeijingLocation = new TaxiLog(0, longitudeBeijing, latitudeBeijing);
-        this.logger = new Logger("bolts.NotifyLeavingAreaBolt");
     }
 
     @Override
@@ -72,41 +68,28 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         Double latitude = tuple.getDoubleByField("latitude");
         long timestamp = tuple.getLongByField("timestamp");
 
-        this.logger.log("Before going to SendViaTCP");
-        
-
-        clientEndPoint.sendMessage("{'event':'addChannel','channel':'ok_btccny_ticker'}");
-
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
         TaxiLog currentLog = new TaxiLog(timestamp, latitude, longitude);
         Double distanceToBeijingCenterMeter = 0.;
         distanceToBeijingCenterMeter = CoordinateHelper.calculateDistance(currentLog, centerBeijingLocation);
 
-
-        //TODO: include timestamp check
         if (!lastLogs.containsKey(taxiId)) {
             if (distanceToBeijingCenterMeter > maxDistanceToBeijingCenterKiloMeter) {
                 this.logger.log("Taxi " + taxiId + " is leaving a predefined area!");
 
                 this.lastLogs.put(taxiId, currentLog);
-
-
+                
+                sendLeavingAreaMessageToDashboard(true, taxiId);
             } else {
                 TaxiLog existingLog = this.lastLogs.get(taxiId);
 
                 if (distanceToBeijingCenterMeter <= maxDistanceToBeijingCenterKiloMeter &&
-                        existingLog.getTimestamp() <= currentLog.getTimestamp()) {
+                    existingLog.getTimestamp() <= currentLog.getTimestamp()) {
 
                     this.logger.log("Taxi " + taxiId + " is inside the predefined area again");
 
                     this.lastLogs.remove(taxiId);
-                    
+
+                    sendLeavingAreaMessageToDashboard(false, taxiId);
                 }
             }
 
@@ -118,6 +101,11 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         //there is only output to the frontend
+    }
+
+    private void sendLeavingAreaMessageToDashboard( Boolean leavingArea, Integer taxiId){
+        
+        clientEndPoint.sendMessage("{\"taxi\":\"" + taxiId + "\",\"leavingArea\":"+ leavingArea.toString() + "}");
     }
 
 }
