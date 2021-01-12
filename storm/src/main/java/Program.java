@@ -64,6 +64,7 @@ public class Program {
         KafkaSpoutConfig.Builder<String, String> kafkaSpoutBuilder = KafkaSpoutConfig.builder("kafka:" + "9092", "test");
         kafkaSpoutBuilder.setProp(ConsumerConfig.GROUP_ID_CONFIG, "test");
         kafkaSpoutBuilder.setProp(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
+        kafkaSpoutBuilder.setProcessingGuarantee(KafkaSpoutConfig.ProcessingGuarantee.AT_MOST_ONCE);
         kafkaSpoutBuilder.setRecordTranslator((ConsumerRecord<String, String> record) -> {
             Gson g = new Gson();
             TransferKafkaObject p = g.fromJson(record.value(), TransferKafkaObject.class);
