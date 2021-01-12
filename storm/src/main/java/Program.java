@@ -10,7 +10,6 @@ import org.apache.storm.redis.common.config.JedisPoolConfig;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Values;
-import spouts.NotifyLeavingAreaSpout;
 import utils.TransferKafkaObject;
 
 

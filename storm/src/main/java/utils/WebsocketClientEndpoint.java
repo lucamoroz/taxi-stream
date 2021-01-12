@@ -21,8 +21,8 @@ public class WebsocketClientEndpoint {
 
     Session userSession = null;
     private MessageHandler messageHandler;
-    
-    private Logger logger;
+
+    private final Logger logger;
 
     public WebsocketClientEndpoint(URI endpointURI) {
         this.logger = new Logger("Websocketlogger");
@@ -41,7 +41,6 @@ public class WebsocketClientEndpoint {
                 Thread.sleep(3000);
                 this.buildUpConnection(endpointURI);
             } catch (InterruptedException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
         }

@@ -16,20 +16,15 @@ import utils.Logger;
 import utils.TaxiLog;
 import utils.WebsocketClientEndpoint;
 
+import static utils.Numbers.*;
+
 public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
     private OutputCollector outputCollector;
     private Map<Integer, TaxiLog> lastLogs = new HashMap<>();
     private Logger logger;
 
-
-    private Double latitudeBeijing = 39.916668;
-    private Double longitudeBeijing = 116.383331;
-
     private TaxiLog centerBeijingLocation;
-
-    private Integer maxDistanceToBeijingCenterMeter = 10000;
-
     
     private WebsocketClientEndpoint clientEndPoint;
 
@@ -39,7 +34,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         this.outputCollector = outputCollector;
         lastLogs = new HashMap<>();
 
-        centerBeijingLocation = new TaxiLog(0, longitudeBeijing, latitudeBeijing);
+        centerBeijingLocation = new TaxiLog(0, LONG_BEIJING, LAT_BEIJING);
         this.logger = new Logger("bolts.NotifyLeavingAreaBolt");
 
         try {
@@ -47,11 +42,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
             this.clientEndPoint = new WebsocketClientEndpoint(new URI("ws://dashboard-backend:8082"));
 
             // add listener
-            clientEndPoint.addMessageHandler(new WebsocketClientEndpoint.MessageHandler() {
-                public void handleMessage(String message) {
-                    System.out.println(message);
-                }
-            });
+            clientEndPoint.addMessageHandler(message -> logger.log(message));
 
         } catch (URISyntaxException ex) {
             this.logger.log("URISyntaxException exception: " + ex.getMessage());
@@ -67,12 +58,11 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         long timestamp = tuple.getLongByField("timestamp");
 
         TaxiLog currentLog = new TaxiLog(timestamp, latitude, longitude);
-        Double distanceToBeijingCenterMeter = 0.;
-        distanceToBeijingCenterMeter = CoordinateHelper.calculateDistance(currentLog, centerBeijingLocation);
+        double distanceToBeijingCenterMeter = CoordinateHelper.calculateDistance(currentLog, centerBeijingLocation);
 
         if (!lastLogs.containsKey(taxiId)) {
             
-            if (distanceToBeijingCenterMeter > maxDistanceToBeijingCenterMeter) {
+            if (distanceToBeijingCenterMeter > MAX_DISTANCE_TO_CENTER) {
 
                 this.logger.log("Taxi " + taxiId + " is leaving a predefined area!");
 
@@ -85,7 +75,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
                 
                 TaxiLog existingLog = this.lastLogs.get(taxiId);
 
-                if (distanceToBeijingCenterMeter <= maxDistanceToBeijingCenterMeter &&
+                if (distanceToBeijingCenterMeter <= MAX_DISTANCE_TO_CENTER &&
                     existingLog.getTimestamp() <= currentLog.getTimestamp()) {
 
                     this.logger.log("Taxi " + taxiId + " is inside the predefined area again");
