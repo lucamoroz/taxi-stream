@@ -23,12 +23,12 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
     private Logger logger;
 
 
-    private Double latitudeBeijing = 39.9035;
-    private Double longitudeBeijing = 116.40048;
+    private Double latitudeBeijing = 39.916668;
+    private Double longitudeBeijing = 116.383331;
 
     private TaxiLog centerBeijingLocation;
 
-    private Integer maxDistanceToBeijingCenterKiloMeter = 100;
+    private Integer maxDistanceToBeijingCenterMeter = 10000;
 
     
     private WebsocketClientEndpoint clientEndPoint;
@@ -37,8 +37,6 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
     public void prepare(Map<String, Object> map, TopologyContext topologyContext,
     OutputCollector outputCollector) {
         this.outputCollector = outputCollector;
-        lastLogs = new HashMap<>();
-
         lastLogs = new HashMap<>();
 
         centerBeijingLocation = new TaxiLog(0, longitudeBeijing, latitudeBeijing);
@@ -72,35 +70,22 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         Double distanceToBeijingCenterMeter = 0.;
         distanceToBeijingCenterMeter = CoordinateHelper.calculateDistance(currentLog, centerBeijingLocation);
 
-        this.logger.log("Timestamp current log: " + currentLog.getTimestamp());
-
-        this.logger.log("lastlogs from notify leaving: " + lastLogs.toString());
-
         if (!lastLogs.containsKey(taxiId)) {
             
-            this.logger.log("last logs does not contain taxiId");
-            if (distanceToBeijingCenterMeter > maxDistanceToBeijingCenterKiloMeter) {
+            if (distanceToBeijingCenterMeter > maxDistanceToBeijingCenterMeter) {
 
                 this.logger.log("Taxi " + taxiId + " is leaving a predefined area!");
 
                 this.lastLogs.put(taxiId, currentLog);
                 
-
-                this.logger.log("Distance calculated: " + distanceToBeijingCenterMeter + ", current coordinates taxi: " + 
-                    currentLog.getLatitude() + ", " + currentLog.getLongitude()+ ", Beijing Center: " + 
-                    centerBeijingLocation.getLatitude() + ", " + centerBeijingLocation.getLongitude());
-
                 sendLeavingAreaMessageToDashboard(true, taxiId);
 
             } 
         }else {
                 
-                this.logger.log("last logs contains taxiId");
                 TaxiLog existingLog = this.lastLogs.get(taxiId);
 
-                this.logger.log("Existing log timestamp: " + existingLog.getTimestamp());
-
-                if (distanceToBeijingCenterMeter <= maxDistanceToBeijingCenterKiloMeter &&
+                if (distanceToBeijingCenterMeter <= maxDistanceToBeijingCenterMeter &&
                     existingLog.getTimestamp() <= currentLog.getTimestamp()) {
 
                     this.logger.log("Taxi " + taxiId + " is inside the predefined area again");

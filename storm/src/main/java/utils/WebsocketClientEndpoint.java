@@ -1,6 +1,7 @@
 package utils;
 
 import java.net.URI;
+
 import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
 import javax.websocket.ContainerProvider;
@@ -20,14 +21,31 @@ public class WebsocketClientEndpoint {
 
     Session userSession = null;
     private MessageHandler messageHandler;
+    
+    private Logger logger;
 
     public WebsocketClientEndpoint(URI endpointURI) {
+        this.logger = new Logger("Websocketlogger");
+        this.buildUpConnection(endpointURI);
+    }
+
+    private void buildUpConnection(URI endpointURI) {
+
         try {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             container.connectToServer(this, endpointURI);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            this.logger.log("Websocket connection refused, trying to reconnect.");
+
+            try {
+                Thread.sleep(3000);
+                this.buildUpConnection(endpointURI);
+            } catch (InterruptedException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
         }
+
     }
 
     /**
