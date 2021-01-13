@@ -73,28 +73,36 @@ const broadcast = (message: string) => {
 
 
 const setupRedisFetcher = async () => {
-  const redis = await connect({
+  // Once a redis object subscribes to a channel, it cannot be used to perform other ops like get, hget, ..
+  // therefore two redis clients are created
+  const redisSub = await connect({
     hostname: "redis",
     port: 6379,
   });
-  const file = (await Deno.readTextFile("1.txt"))
-    .split("\n")
-    .map((line: string) => line.split(",").slice(2).reverse().join(", "));
-  setInterval(async () => {
-    /*const keys = await redis.keys('*');
-        const values = await Promise.all(keys.map(async key => await redis.hgetall(key).then(value => ({
-            taxi: key,
-            ...Object.fromEntries(value.reduce((all: any, one: any, i) => {
-                const ch = Math.floor(i / 2);
-                all[ch] = [].concat((all[ch] || []), one);
-                return all;
-            }, []))
-        }))));
-        broadcast(JSON.stringify(values));*/
-    broadcast(
-      JSON.stringify([{ taxi: 1, overall_distance: 2, location: file.shift() }])
-    );
-  }, 1000);
+
+  const redisClient = await connect({
+    hostname: "redis",
+    port: 6379,
+  });
+
+  // Subscribe to HSET events, published everytime a HSET command is performed (message == taxi id)
+  const sub = await redisSub.subscribe("__keyevent@0__:hset");
+  console.log("subscribed...");
+  (async function() {
+    for await (const { channel, message } of sub.receive()) {
+      const data = await redisClient.hgetall(message);
+      //example data: ["average_speed", "13.343391",  "location", "116.400480, 39.904100", "overall_distance", "7.672450"]
+      let dataMap: {[index: string]:string} = { "taxi": message};
+      for (let i=0; i < data.length; i+=2) {
+        const propName = data[i];
+        const propValue = data[i+1];
+        dataMap[propName] = propValue;
+      }
+
+      broadcast(JSON.stringify(dataMap));
+
+    }
+  })();
 };
 
 const setupWebServer = () => {
