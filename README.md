@@ -46,3 +46,8 @@ TAXI_DATASET=/aic/g1
     - WebSockets
 
 # Use case
+
+1. ⚙ Configure the wanted paramters in `.env`.
+2. ▶ Run `docker-compose up` 
+3. ⌛ Wait a bit. This can take a while 
+4. 🥳 Go to `localhost:8080` in your browser
