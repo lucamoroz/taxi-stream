@@ -3,9 +3,23 @@
 - Milasus Edzus
 - Moroldo Luca
 - Riegler Maximilian
-- Manuel
+- 01650767 Manuel Wolkowitsch
 
 # Work Distribution
+- Storm setup
+- AverageSpeedBolt
+- CalculateSpeedBolt
+- NotifyLeavingAreaBolt
+- NotifySpeedingBolt
+- UpdateLocationBolt
+- Data preparation and emission
+- Kafka spout
+- Redis setup
+- Redis dashboard integration
+- NotifyBolt dashboard integration
+- Dashboard
+- Performance metrics
+- Performance optimizations
 
 # Configuration
 
@@ -18,5 +32,17 @@ TAXI_DATASET=/aic/g1
 ```
 
 # Technologies used
+- Container Management
+    - Docker
+- Streaming
+    - Apache Storm
+    - Apache Kafka
+    - Java
+- Data preparation and emission
+    - Python
+- Dashboard
+    - NodeJS, NPM, Deno
+    - React
+    - WebSockets
 
 # Use case
