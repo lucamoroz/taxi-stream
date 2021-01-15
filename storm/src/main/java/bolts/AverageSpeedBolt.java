@@ -9,8 +9,6 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import utils.Logger;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +28,6 @@ public class AverageSpeedBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple input) {
-        Instant startTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
         int taxiId = input.getIntegerByField("id");
         double speed = input.getDoubleByField("speed");
 
@@ -40,7 +37,7 @@ public class AverageSpeedBolt extends BaseRichBolt {
 
         if (lastSpeeds.containsKey(taxiId)) {
             speeds = lastSpeeds.get(taxiId);
-        }else{
+        } else {
             speeds = new ArrayList();
             lastSpeeds.put(taxiId, speeds);
         }
@@ -48,15 +45,12 @@ public class AverageSpeedBolt extends BaseRichBolt {
         speeds.add(speed);
         double averageSpeed = speeds.stream().reduce(0d, Double::sum) / speeds.size();
 
-        outputCollector.emit(input, new Values(taxiId, "average_speed", String.format("%.6f", averageSpeed)));
+        outputCollector.emit(input, new Values(taxiId, "average_speed", String.format("%.6f", averageSpeed), input.getLongByField("startTime")));
         outputCollector.ack(input);
-
-        Instant endTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
-        logger.log("Time of execution in nanoseconds: " + endTime.minusNanos(startTime.getNano()));
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("id", "type", "value"));
+        declarer.declare(new Fields("id", "type", "value", "startTime"));
     }
 }

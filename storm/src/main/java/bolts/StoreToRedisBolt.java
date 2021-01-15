@@ -9,12 +9,14 @@ import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.tuple.Tuple;
 import redis.clients.jedis.JedisCommands;
 import utils.Logger;
+import utils.WriteToCSV;
 
 import java.util.Map;
 
 public class StoreToRedisBolt extends AbstractRedisBolt {
 
     private Logger logger;
+    private WriteToCSV writeToCSV;
 
     public StoreToRedisBolt(JedisPoolConfig config) {
         super(config);
@@ -28,6 +30,7 @@ public class StoreToRedisBolt extends AbstractRedisBolt {
     public void prepare(Map<String, Object> map, TopologyContext topologyContext, OutputCollector collector) {
         super.prepare(map, topologyContext, collector);
         this.logger = new Logger("bolts.StoreToRedisBolt");
+        this.writeToCSV = WriteToCSV.createWriteToCSV();
     }
 
     @Override
@@ -47,6 +50,15 @@ public class StoreToRedisBolt extends AbstractRedisBolt {
                 returnInstance(jedisCommands);
             }
             this.collector.ack(tuple);
+        }
+
+        long endTime = System.currentTimeMillis();
+        try{
+            String id = String.valueOf(tuple.getIntegerByField("id"));
+            String time = String.valueOf(endTime - tuple.getLongByField("startTime"));
+            this.writeToCSV.writeToFile(id, tuple.getStringByField("type") + " in StoredRedisBolt", time);
+        } catch (Exception ex){
+            this.logger.log("Error while writing to CSV: " + ex.toString());
         }
     }
 

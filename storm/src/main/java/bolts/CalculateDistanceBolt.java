@@ -1,9 +1,5 @@
 package bolts;
 
-import com.codahale.metrics.MetricRegistryListener;
-import org.apache.storm.redis.bolt.AbstractRedisBolt;
-import org.apache.storm.redis.common.config.JedisClusterConfig;
-import org.apache.storm.redis.common.config.JedisPoolConfig;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -15,8 +11,6 @@ import utils.CoordinateHelper;
 import utils.Logger;
 import utils.TaxiLog;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +28,7 @@ public class CalculateDistanceBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple input) {
-        Instant startTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
+
         int taxiId = input.getIntegerByField("taxi_id");
         double latitude = input.getDoubleByField("latitude");
         double longitude = input.getDoubleByField("longitude");
@@ -52,16 +46,13 @@ public class CalculateDistanceBolt extends BaseRichBolt {
 
         overallDistances.put(taxiId, new Object[]{currentOverallDistance, currentLog});
 
-        outputCollector.emit(new Values(taxiId, "overall_distance", String.format("%.6f", currentOverallDistance)));
+        outputCollector.emit(new Values(taxiId, "overall_distance", String.format("%.6f", currentOverallDistance), input.getLongByField("startTime")));
         outputCollector.ack(input);
-
-        Instant endTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
-        logger.log("Time of execution in nanoseconds: " + endTime.minusNanos(startTime.getNano()));
 
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("id", "type", "value"));
+        declarer.declare(new Fields("id", "type", "value", "startTime"));
     }
 }
