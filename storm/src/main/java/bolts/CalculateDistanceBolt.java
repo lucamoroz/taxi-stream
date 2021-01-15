@@ -47,7 +47,7 @@ public class CalculateDistanceBolt extends AbstractRedisBolt {
         if (overallDistances.containsKey(taxiId)) {
             currentOverallDistance = (double) overallDistances.get(taxiId)[0];
             TaxiLog lastLog = (TaxiLog) overallDistances.get(taxiId)[1];
-            currentOverallDistance += CoordinateHelper.calculateDistance(lastLog, currentLog) / 1000d;
+            currentOverallDistance += CoordinateHelper.calculateDistance(lastLog, currentLog);
         }
 
         overallDistances.put(taxiId, new Object[]{currentOverallDistance, currentLog});

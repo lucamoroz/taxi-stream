@@ -43,7 +43,7 @@ public class UpdateLocationBolt extends AbstractRedisBolt {
             jedisCommands = getInstance();
 
             jedisCommands.hset(String.valueOf(taxiId), "location", String.format("%.6f, %.6f", latitude, longitude));
-            logger.log(String.format("updated location of taxy %d to %.6f, %.6f", taxiId, latitude, longitude));
+            logger.log(String.format("updated location of taxi %d to %.6f, %.6f", taxiId, latitude, longitude));
 
         } finally {
             if (jedisCommands != null) {
