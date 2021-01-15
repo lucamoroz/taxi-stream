@@ -17,4 +17,11 @@ COPY src .
 # update PATH environment variable
 ENV PATH=/root/.local:$PATH
 
-CMD [ "python", "./main.py", "1", "-1"]
+# wait-for-it
+RUN apt-get update
+RUN apt-get -y install bash curl
+RUN curl https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh > wait-for-it.sh
+RUN chmod +x ./wait-for-it.sh
+
+# start app
+CMD bash -c "./wait-for-it.sh -t 0 ${WAIT_FOR} -- python -u ./main.py --dataset /dataset/ --sorted_logs /data/logs.txt --speed_multiplier ${SPEED_MULTIPLIER} --max_taxis ${MAX_TAXIS}"

@@ -1,12 +1,16 @@
 version: "3"
 
 services:
+
   dashboard-frontend:
     build:
       context: dashboard-frontend
       dockerfile: ./Dockerfile
     ports:
-      - 3000:3000
+      - 8080:8080
+    environment:
+      WAIT_FOR: dashboard-backend:8081
+
   dashboard-backend:
     hostname: dashboard-backend
     build:
@@ -15,9 +19,12 @@ services:
     depends_on:
       - redis
     ports:
-      - 8080:8080
       - 8081:8081
       - 8082:8082
+      - 8083:8083
+    environment:
+      WAIT_FOR: redis:6379
+
   redis:
     build:
       context: redis
@@ -40,7 +47,10 @@ services:
         source: ${TAXI_DATASET}
         target: /dataset/
         read_only: true
-    command: sh -c "sleep 5 && python -u ./main.py --dataset /dataset/ --sorted_logs /data/logs.txt --speed_multiplier 2 --max_taxis 100"
+    environment:
+      WAIT_FOR: kafka:9092
+      SPEED_MULTIPLIER: ${SPEED_MULTIPLIER}
+      MAX_TAXIS: ${MAX_TAXIS}
 
   storm:
     build:
@@ -50,7 +60,9 @@ services:
       - redis
       - zookeeper
       - kafka
-    command: sh -c "sleep 10 && mvn exec:java -Dexec.classpathScope=compile -Dexec.mainClass=Program"
+    environment:
+      WAIT_FOR: kafka:9092
+      WAIT_FOR_2: redis:6379
 
   zookeeper:
     image: wurstmeister/zookeeper:3.4.6
@@ -59,7 +71,9 @@ services:
       - "2181"
 
   kafka:
-    image: wurstmeister/kafka:2.11-2.0.0
+    build:
+      context: kafka
+      dockerfile: ./Dockerfile
     depends_on:
       - zookeeper
     ports:
@@ -67,6 +81,7 @@ services:
     expose:
       - 9092
     environment:
+      WAIT_FOR: zookeeper:2181
       KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181

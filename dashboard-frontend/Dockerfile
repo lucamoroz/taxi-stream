@@ -17,6 +17,11 @@ RUN npm install --silent
 # add app
 COPY . ./
 
+# wait-for-it
+RUN apk add bash curl
+RUN curl https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh > wait-for-it.sh
+RUN chmod +x ./wait-for-it.sh
+
 # start app
 RUN npm run build
-CMD serve -s build -l 3000
+CMD bash -c "./wait-for-it.sh -t 0  ${WAIT_FOR} -- serve -s build -l 8080"
