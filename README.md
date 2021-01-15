@@ -1,5 +1,5 @@
 # Team Members
-- Bulatovic Djordje
+- 01427811 Bulatovic Djordje
 - Milasus Edzus
 - Moroldo Luca
 - 01634877 Riegler Maximilian
@@ -8,9 +8,11 @@
 # Work Distribution
 - Docker setup
     - Maximilian Riegler
+    - Djordje Bulatovic
 - Storm setup
     - Manuel Wolkowitsch
     - Maximilian Riegler
+    - Djordje Bulatovic
 - AverageSpeedBolt
 - CalculateDistanceBolt
     - Maximilian Riegler
@@ -23,14 +25,18 @@
 - Data preparation and emission
 - Kafka spout
     - Maximilian Riegler
+    - Djordje Bulatovic
 - Redis setup
 - Redis dashboard integration
 - NotifyBolt dashboard integration
+    - Djordje Bulatovic
 - Dashboard
     - Manuel Wolkowitsch
     - Maximilian Riegler
 - Performance metrics
+    - Djordje Bulatovic
 - Performance optimizations
+    - Djordje Bulatovic
 
 # Configuration
 
