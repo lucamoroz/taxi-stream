@@ -2,22 +2,33 @@
 - Bulatovic Djordje
 - Milasus Edzus
 - Moroldo Luca
-- Riegler Maximilian
-- 01650767 Manuel Wolkowitsch
+- 01634877 Riegler Maximilian
+- 01650767 Wolkowitsch Manuel 
 
 # Work Distribution
+- Docker setup
+    - Maximilian Riegler
 - Storm setup
+    - Manuel Wolkowitsch
+    - Maximilian Riegler
 - AverageSpeedBolt
+- CalculateDistanceBolt
+    - Maximilian Riegler
 - CalculateSpeedBolt
+    - Manuel Wolkowitsch
+    - Maximilian Riegler
 - NotifyLeavingAreaBolt
 - NotifySpeedingBolt
 - UpdateLocationBolt
 - Data preparation and emission
 - Kafka spout
+    - Maximilian Riegler
 - Redis setup
 - Redis dashboard integration
 - NotifyBolt dashboard integration
 - Dashboard
+    - Manuel Wolkowitsch
+    - Maximilian Riegler
 - Performance metrics
 - Performance optimizations
 
@@ -34,6 +45,7 @@ TAXI_DATASET=/aic/g1
 # Technologies used
 - Container Management
     - Docker
+    - Docker Compose
 - Streaming
     - Apache Storm
     - Apache Kafka
@@ -46,3 +58,8 @@ TAXI_DATASET=/aic/g1
     - WebSockets
 
 # Use case
+
+1. ⚙ Configure the wanted paramters in `.env`.
+2. ▶ Run `docker-compose up` 
+3. ⌛ Wait a bit. This can take a while 
+4. 🥳 Go to `localhost:8080` in your browser
