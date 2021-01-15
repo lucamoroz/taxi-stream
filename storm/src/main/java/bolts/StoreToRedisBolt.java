@@ -27,7 +27,7 @@ public class StoreToRedisBolt extends AbstractRedisBolt {
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext, OutputCollector collector) {
         super.prepare(map, topologyContext, collector);
-        this.logger = new Logger("bolts.UpdateLocationBolt");
+        this.logger = new Logger("bolts.StoreToRedisBolt");
     }
 
     @Override
@@ -40,7 +40,8 @@ public class StoreToRedisBolt extends AbstractRedisBolt {
             jedisCommands.hset(String.valueOf(tuple.getIntegerByField("id")),
                     tuple.getStringByField("type"),
                     tuple.getStringByField("value"));
-            logger.log("Taxi saved: " + tuple.getStringByField("id"));
+            logger.log("Taxi id: " + tuple.getIntegerByField("id") + "; Type : " + tuple.getStringByField("type") +
+                    "; Value: " + tuple.getStringByField("value") + " has been added to redis.");
         } finally {
             if (jedisCommands != null) {
                 returnInstance(jedisCommands);
