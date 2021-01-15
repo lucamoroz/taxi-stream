@@ -27,23 +27,25 @@ public class Program {
 
         topoBuilder.setBolt("calculateSpeedBolt", new CalculateSpeedBolt())
                 .fieldsGrouping("kafkaSpout", new Fields("taxi_id"));
-        topoBuilder.setBolt("averageSpeedBolt", new AverageSpeedBolt(poolConfig))
+        topoBuilder.setBolt("averageSpeedBolt", new AverageSpeedBolt())
                  .fieldsGrouping("calculateSpeedBolt", new Fields("id"));
 
-        topoBuilder.setBolt("calculateDistanceBolt", new CalculateDistanceBolt(poolConfig))
+        topoBuilder.setBolt("calculateDistanceBolt", new CalculateDistanceBolt())
                 .fieldsGrouping("kafkaSpout", new Fields("taxi_id"));
 
-        topoBuilder.setBolt("updateLocationBolt", new UpdateLocationBolt(poolConfig))
+        topoBuilder.setBolt("updateLocationBolt", new UpdateLocationBolt())
                 .fieldsGrouping("kafkaSpout", new Fields("taxi_id"));
 
         topoBuilder.setBolt("notifyLeavingAreaBolt", new NotifyLeavingAreaBolt())
                 .fieldsGrouping("kafkaSpout", new Fields("taxi_id"));
 
         topoBuilder.setBolt("notifySpeedingBolt", new NotifySpeedingBolt())
-            .fieldsGrouping("calculateSpeedBolt", new Fields("id"));
+                .fieldsGrouping("calculateSpeedBolt", new Fields("id"));
 
-
-        //TODO: add notify Speeding Bolt from "Calculate Speed" bolt
+        topoBuilder.setBolt("storeToRedisBolt", new StoreToRedisBolt(poolConfig))
+                .fieldsGrouping("calculateDistanceBolt", new Fields("id"))
+                .fieldsGrouping("averageSpeedBolt", new Fields("id"))
+                .fieldsGrouping("updateLocationBolt", new Fields("id"));
 
         try {
             cluster = new LocalCluster();
