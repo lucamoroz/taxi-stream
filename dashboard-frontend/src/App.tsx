@@ -47,7 +47,7 @@ export const App = () => {
         <MapContainer
           center={[40, 116]}
           zoom={10}
-          scrollWheelZoom={false}
+          scrollWheelZoom={true}
           style={{height: '100%'}}
         >
           {selectedTaxi ? <FlyToLocation location={state.locations[selectedTaxi]} drag={() => setSelectedTaxi(undefined)}/> : null}
