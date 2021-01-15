@@ -12,6 +12,8 @@ services:
     build:
       context: dashboard-backend
       dockerfile: ./Dockerfile
+    depends_on:
+      - redis
     ports:
       - 8080:8080
       - 8081:8081
@@ -38,7 +40,7 @@ services:
         source: ${TAXI_DATASET}
         target: /dataset/
         read_only: true
-    command: sh -c "sleep 5 && python -u ./main.py --dataset /dataset/ --sorted_logs /data/logs.txt --speed_multiplier 1 --max_taxis -1"
+    command: sh -c "sleep 5 && python -u ./main.py --dataset /dataset/ --sorted_logs /data/logs.txt --speed_multiplier 2 --max_taxis 100"
 
   storm:
     build:
