@@ -68,8 +68,8 @@ public class Program {
         kafkaSpoutBuilder.setRecordTranslator((ConsumerRecord<String, String> record) -> {
             Gson g = new Gson();
             TransferKafkaObject p = g.fromJson(record.value(), TransferKafkaObject.class);
-            return new Values(p.getTaxi_id(), p.getDatetime(), Double.parseDouble(p.getLatitude()), Double.parseDouble(p.getLongitude()));
-        }, new Fields("taxi_id", "timestamp", "latitude", "longitude"));
+            return new Values(p.getTaxi_id(), p.getDatetime(), Double.parseDouble(p.getLatitude()), Double.parseDouble(p.getLongitude()), System.currentTimeMillis());
+        }, new Fields("taxi_id", "timestamp", "latitude", "longitude", "startTime"));
 
         return new KafkaSpout<>(kafkaSpoutBuilder.build());
     }

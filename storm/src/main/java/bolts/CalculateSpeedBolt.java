@@ -7,6 +7,8 @@ import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
+
+import utils.WriteToCSV;
 import utils.CoordinateHelper;
 import utils.Logger;
 import utils.TaxiLog;
@@ -20,16 +22,17 @@ public class CalculateSpeedBolt extends BaseRichBolt {
     OutputCollector _collector;
     Map<Integer, TaxiLog> lastLogs = new HashMap<>();
     Logger logger;
+    WriteToCSV writeToCSV;
 
     @Override
     public void prepare(Map<String, Object> topoConf, TopologyContext context, OutputCollector collector) {
         _collector = collector;
         logger = new Logger("bolts.CalculateSpeedBolt");
+        this.writeToCSV = WriteToCSV.createWriteToCSV();
     }
 
     @Override
     public void execute(Tuple input) {
-        Instant startTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
         int taxiId = input.getIntegerByField("taxi_id");
         double latitude = input.getDoubleByField("latitude");
         double longitude = input.getDoubleByField("longitude");
@@ -49,18 +52,17 @@ public class CalculateSpeedBolt extends BaseRichBolt {
                 // speed as km/h
                 double speed = distanceKm/timeDiffHours;
 
-                _collector.emit(new Values(taxiId, speed, currentLog.getTimestamp()));
+                _collector.emit(new Values(taxiId, speed, currentLog.getTimestamp(), input.getLongByField("startTime")));
                 logger.log(String.format("speed of taxi %d: %.2f km/h ", taxiId, speed));
             }
         }
         lastLogs.put(taxiId, currentLog);
         _collector.ack(input);
-        Instant endTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
-        logger.log("Time of execution in nanoseconds: " + endTime.minusNanos(startTime.getNano()));
+
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("id", "speed", "timestamp"));
+        declarer.declare(new Fields("id", "speed", "timestamp", "startTime"));
     }
 }

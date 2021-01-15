@@ -13,6 +13,7 @@ import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Tuple;
 
+import utils.WriteToCSV;
 import utils.Logger;
 import utils.WebsocketClientEndpoint;
 
@@ -24,6 +25,7 @@ public class NotifySpeedingBolt extends BaseRichBolt {
 
     private Map<Integer, Long> lastLogs = new HashMap<>();
     private Logger logger;
+    private WriteToCSV writeToCSV;
 
     private WebsocketClientEndpoint clientEndPoint;
 
@@ -33,6 +35,7 @@ public class NotifySpeedingBolt extends BaseRichBolt {
         this.outputCollector = outputCollector;
         lastLogs = new HashMap<>();
         this.logger = new Logger("bolts.NotifySpeedingBolt");
+        this.writeToCSV = WriteToCSV.createWriteToCSV();
 
         try {
             // open websocket
@@ -48,7 +51,6 @@ public class NotifySpeedingBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        Instant startTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
 
         int taxiId = tuple.getIntegerByField("id");
 
@@ -60,7 +62,7 @@ public class NotifySpeedingBolt extends BaseRichBolt {
             if (speed.compareTo(SPEED_LIMIT) > 0) {
                 lastLogs.put(taxiId, timestamp);
 
-                this.logger.log("Taxi " + taxiId + " is speeding, implement notification!");
+                this.logger.log("Taxi " + taxiId + " is speeding!");
                 sendSpeedingMessageToDashboard(true, taxiId);
             }
         } else {
@@ -71,8 +73,15 @@ public class NotifySpeedingBolt extends BaseRichBolt {
                 sendSpeedingMessageToDashboard(false, taxiId);
             }
         }
-        Instant endTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
-        logger.log("Time of execution in nanoseconds: " + endTime.minusNanos(startTime.getNano()));
+        
+        long endTime = System.currentTimeMillis();
+        try{
+            String id = String.valueOf(taxiId);
+            String time = String.valueOf(endTime - tuple.getLongByField("startTime"));
+            this.writeToCSV.writeToFile(id, "NotifySpeedingBolt", time);
+        } catch (Exception ex){
+            this.logger.log("Error while writing to CSV: " + ex.toString());
+        }
     }
 
     @Override

@@ -13,6 +13,7 @@ import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Tuple;
 
+import utils.WriteToCSV;
 import utils.CoordinateHelper;
 import utils.Logger;
 import utils.TaxiLog;
@@ -25,6 +26,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
     private OutputCollector outputCollector;
     private Map<Integer, TaxiLog> lastLogs = new HashMap<>();
     private Logger logger;
+    private WriteToCSV writeToCSV;
 
     private TaxiLog centerBeijingLocation;
 
@@ -35,6 +37,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
                         OutputCollector outputCollector) {
         this.outputCollector = outputCollector;
         lastLogs = new HashMap<>();
+        this.writeToCSV = WriteToCSV.createWriteToCSV();
 
         centerBeijingLocation = new TaxiLog(0, LONG_BEIJING, LAT_BEIJING);
         this.logger = new Logger("bolts.NotifyLeavingAreaBolt");
@@ -53,7 +56,6 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        Instant startTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
 
         int taxiId = tuple.getIntegerByField("taxi_id");
         Double longitude = tuple.getDoubleByField("longitude");
@@ -88,8 +90,15 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
                 sendLeavingAreaMessageToDashboard(false, taxiId);
             }
         }
-        Instant endTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
-        logger.log("Time of execution in nanoseconds: " + endTime.minusNanos(startTime.getNano()));
+        
+        long endTime = System.currentTimeMillis();
+        try{
+            String id = String.valueOf(taxiId);
+            String time = String.valueOf(endTime - tuple.getLongByField("startTime"));
+            this.writeToCSV.writeToFile(id, "NotifyLeavingAreaBolt", time);
+        } catch (Exception ex){
+            this.logger.log("Error while writing to CSV: " + ex.toString());
+        }
     }
 
 

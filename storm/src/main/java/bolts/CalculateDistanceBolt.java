@@ -8,6 +8,7 @@ import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.tuple.Tuple;
 import redis.clients.jedis.JedisCommands;
+import utils.WriteToCSV;
 import utils.CoordinateHelper;
 import utils.Logger;
 import utils.TaxiLog;
@@ -20,11 +21,13 @@ import java.util.Map;
 public class CalculateDistanceBolt extends AbstractRedisBolt {
     Map<Integer, Object[]> overallDistances = new HashMap<>();
     Logger logger;
+    WriteToCSV writeToCSV;
 
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext, OutputCollector collector) {
         super.prepare(map, topologyContext, collector);
         this.logger = new Logger("bolts.CalculateDistanceBolt");
+        this.writeToCSV = WriteToCSV.createWriteToCSV();
     }
 
     public CalculateDistanceBolt(JedisPoolConfig config) {
@@ -37,7 +40,6 @@ public class CalculateDistanceBolt extends AbstractRedisBolt {
 
     @Override
     protected void process(Tuple input) {
-        Instant startTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
         int taxiId = input.getIntegerByField("taxi_id");
         double latitude = input.getDoubleByField("latitude");
         double longitude = input.getDoubleByField("longitude");
@@ -67,8 +69,15 @@ public class CalculateDistanceBolt extends AbstractRedisBolt {
             }
             this.collector.ack(input);
         }
-        Instant endTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
-        logger.log("Time of execution in nanoseconds: " + endTime.minusNanos(startTime.getNano()));
+        
+        long endTime = System.currentTimeMillis();
+        try{
+            String id = String.valueOf(taxiId);
+            String time = String.valueOf(endTime - input.getLongByField("startTime"));
+            this.writeToCSV.writeToFile(id, "CalculateDistanceBolt", time);
+        } catch (Exception ex){
+            this.logger.log("Error while writing to CSV: " + ex.toString());
+        }
 
     }
 
