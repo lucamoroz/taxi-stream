@@ -10,6 +10,8 @@ import org.apache.storm.tuple.Tuple;
 import redis.clients.jedis.JedisCommands;
 import utils.Logger;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 
@@ -33,7 +35,8 @@ public class UpdateLocationBolt extends AbstractRedisBolt {
     }
 
     @Override
-    protected void process(Tuple input) {        
+    protected void process(Tuple input) {
+        Instant startTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
         int taxiId = input.getIntegerByField("taxi_id");
         double latitude = input.getDoubleByField("latitude");
         double longitude = input.getDoubleByField("longitude");
@@ -51,6 +54,8 @@ public class UpdateLocationBolt extends AbstractRedisBolt {
             }
             this.collector.ack(input);
         }
+        Instant endTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
+        logger.log("Time of execution in nanoseconds: " + endTime.minusNanos(startTime.getNano()));
     }
 
     @Override

@@ -2,6 +2,8 @@ package bolts;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,6 +48,7 @@ public class NotifySpeedingBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
+        Instant startTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
 
         int taxiId = tuple.getIntegerByField("id");
 
@@ -68,7 +71,8 @@ public class NotifySpeedingBolt extends BaseRichBolt {
                 sendSpeedingMessageToDashboard(false, taxiId);
             }
         }
-
+        Instant endTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
+        logger.log("Time of execution in nanoseconds: " + endTime.minusNanos(startTime.getNano()));
     }
 
     @Override

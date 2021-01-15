@@ -10,6 +10,8 @@ import org.apache.storm.tuple.Tuple;
 import redis.clients.jedis.JedisCommands;
 import utils.Logger;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +37,7 @@ public class AverageSpeedBolt extends AbstractRedisBolt {
 
     @Override
     protected void process(Tuple input) {
+        Instant startTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
         int taxiId = input.getIntegerByField("id");
         double speed = input.getDoubleByField("speed");
 
@@ -64,6 +67,8 @@ public class AverageSpeedBolt extends AbstractRedisBolt {
             }
             this.collector.ack(input);
         }
+        Instant endTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
+        logger.log("Time of execution in nanoseconds: " + endTime.minusNanos(startTime.getNano()));
     }
 
     @Override

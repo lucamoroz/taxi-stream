@@ -2,6 +2,8 @@ package bolts;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,12 +27,12 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
     private Logger logger;
 
     private TaxiLog centerBeijingLocation;
-    
+
     private WebsocketClientEndpoint clientEndPoint;
 
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext,
-    OutputCollector outputCollector) {
+                        OutputCollector outputCollector) {
         this.outputCollector = outputCollector;
         lastLogs = new HashMap<>();
 
@@ -51,6 +53,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
+        Instant startTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
 
         int taxiId = tuple.getIntegerByField("taxi_id");
         Double longitude = tuple.getDoubleByField("longitude");
@@ -61,35 +64,36 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
         double distanceToBeijingCenterMeter = CoordinateHelper.calculateDistance(currentLog, centerBeijingLocation);
 
         if (!lastLogs.containsKey(taxiId)) {
-            
+
             if (distanceToBeijingCenterMeter > MAX_DISTANCE_TO_CENTER) {
 
                 this.logger.log("Taxi " + taxiId + " is leaving a predefined area!");
 
                 this.lastLogs.put(taxiId, currentLog);
-                
+
                 sendLeavingAreaMessageToDashboard(true, taxiId);
 
-            } 
+            }
         }else {
-                
-                TaxiLog existingLog = this.lastLogs.get(taxiId);
 
-                if (distanceToBeijingCenterMeter <= MAX_DISTANCE_TO_CENTER &&
+            TaxiLog existingLog = this.lastLogs.get(taxiId);
+
+            if (distanceToBeijingCenterMeter <= MAX_DISTANCE_TO_CENTER &&
                     existingLog.getTimestamp() <= currentLog.getTimestamp()) {
 
-                    this.logger.log("Taxi " + taxiId + " is inside the predefined area again");
+                this.logger.log("Taxi " + taxiId + " is inside the predefined area again");
 
-                    this.lastLogs.remove(taxiId);
+                this.lastLogs.remove(taxiId);
 
-                    sendLeavingAreaMessageToDashboard(false, taxiId);
-                }
+                sendLeavingAreaMessageToDashboard(false, taxiId);
             }
-
         }
-    
-        
-    
+        Instant endTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
+        logger.log("Time of execution in nanoseconds: " + endTime.minusNanos(startTime.getNano()));
+    }
+
+
+
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
@@ -97,7 +101,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
     }
 
     private void sendLeavingAreaMessageToDashboard( Boolean leavingArea, Integer taxiId){
-        
+
         clientEndPoint.sendMessage("{\"taxi\":\"" + taxiId + "\",\"leavingArea\":"+ leavingArea.toString() + "}");
     }
 

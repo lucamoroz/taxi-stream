@@ -12,6 +12,8 @@ import utils.CoordinateHelper;
 import utils.Logger;
 import utils.TaxiLog;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +37,7 @@ public class CalculateDistanceBolt extends AbstractRedisBolt {
 
     @Override
     protected void process(Tuple input) {
+        Instant startTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
         int taxiId = input.getIntegerByField("taxi_id");
         double latitude = input.getDoubleByField("latitude");
         double longitude = input.getDoubleByField("longitude");
@@ -64,6 +67,9 @@ public class CalculateDistanceBolt extends AbstractRedisBolt {
             }
             this.collector.ack(input);
         }
+        Instant endTime = Instant.now().truncatedTo(ChronoUnit.NANOS);
+        logger.log("Time of execution in nanoseconds: " + endTime.minusNanos(startTime.getNano()));
+
     }
 
     @Override
