@@ -25,7 +25,7 @@ def parse_args(args):
                         type=str, required=True)
     parser.add_argument("--speed_multiplier",
                         help="changes the data emission speed (e.g. with speed_multiplier=2, the speed is doubled)",
-                        default=1, type=int)
+                        default=1, type=float)
     parser.add_argument("--max_taxis", help="maximum number of taxis to follow, -1 to disable", default=-1, type=int)
 
     return parser.parse_args(args)
