@@ -7,9 +7,12 @@ import org.apache.storm.streams.Pair;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
+import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
+import org.apache.storm.tuple.Values;
 import redis.clients.jedis.JedisCommands;
 import utils.Logger;
+import utils.Numbers;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +21,8 @@ public class AverageSpeedBolt extends AbstractRedisBolt {
     // Pair contains the last average speed and the total number of samples
     Map<Integer, Pair<Double, Integer>> lastDataMap = new HashMap<>();
     Logger logger;
+    long lastThroughputMeasurementNs = 0;
+    long nProcessedTuples = 0;
 
     public AverageSpeedBolt(JedisPoolConfig config) {
         super(config);
@@ -38,8 +43,6 @@ public class AverageSpeedBolt extends AbstractRedisBolt {
         int taxiId = input.getIntegerByField("id");
         double speed = input.getDoubleByField("speed");
 
-
-
         Pair<Double, Integer> lastData = lastDataMap.getOrDefault(taxiId, Pair.of(0., 0));
 
         final double newAvgSpeed = lastData.value1 + ((speed - lastData.value1) / (double)(lastData.value2 + 1));
@@ -57,8 +60,18 @@ public class AverageSpeedBolt extends AbstractRedisBolt {
             }
             this.collector.ack(input);
         }
+
+        if ((System.nanoTime() - lastThroughputMeasurementNs) > Numbers.THROUGHPUT_CADENCE_NS) {
+            this.collector.emit("performance", new Values(nProcessedTuples));
+            nProcessedTuples = 0;
+            lastThroughputMeasurementNs = System.nanoTime();
+        } else {
+            nProcessedTuples++;
+        }
     }
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) { }
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+        declarer.declareStream("performance", new Fields("throughput"));
+    }
 }
