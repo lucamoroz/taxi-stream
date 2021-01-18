@@ -38,6 +38,14 @@
 - Performance optimizations
     - Djordje Bulatovic
 
+- Djordje Bulatovic
+    - Docker setup
+    - Storm setup
+    - Kafka setup
+    - NotifyBolts dashboard integration
+    - Performance metrics
+    - Performance optimizations
+  
 - Luca Moroldo
     - Data provider
     - Redis
