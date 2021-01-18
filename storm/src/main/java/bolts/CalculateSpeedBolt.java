@@ -1,5 +1,8 @@
 package bolts;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -8,15 +11,10 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
-import utils.WriteToCSV;
 import utils.CoordinateHelper;
 import utils.Logger;
 import utils.TaxiLog;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
+import utils.WriteToCSV;
 
 public class CalculateSpeedBolt extends BaseRichBolt {
     OutputCollector _collector;
@@ -59,6 +57,16 @@ public class CalculateSpeedBolt extends BaseRichBolt {
         lastLogs.put(taxiId, currentLog);
         _collector.ack(input);
 
+/*
+        long endTime = System.currentTimeMillis();
+        try{
+            String id = String.valueOf(taxiId);
+            String time = String.valueOf(endTime - input.getLongByField("startTime"));
+            this.writeToCSV.writeToFile(id, "CalculateSpeedBolt", time);
+        } catch (Exception ex){
+            this.logger.log("Error while writing to CSV: " + ex.toString());
+        }
+        */
     }
 
     @Override

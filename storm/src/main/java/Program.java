@@ -1,5 +1,5 @@
-import bolts.*;
 import com.google.gson.Gson;
+
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.storm.Config;
@@ -10,6 +10,14 @@ import org.apache.storm.redis.common.config.JedisPoolConfig;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Values;
+
+import bolts.AverageSpeedBolt;
+import bolts.CalculateDistanceBolt;
+import bolts.CalculateSpeedBolt;
+import bolts.NotifyLeavingAreaBolt;
+import bolts.NotifySpeedingBolt;
+import bolts.StoreToRedisBolt;
+import bolts.UpdateLocationBolt;
 import utils.TransferKafkaObject;
 
 
@@ -43,6 +51,7 @@ public class Program {
                 .fieldsGrouping("calculateSpeedBolt", new Fields("id"));
 
         topoBuilder.setBolt("storeToRedisBolt", new StoreToRedisBolt(poolConfig))
+                .setNumTasks(3)
                 .fieldsGrouping("calculateDistanceBolt", new Fields("id"))
                 .fieldsGrouping("averageSpeedBolt", new Fields("id"))
                 .fieldsGrouping("updateLocationBolt", new Fields("id"));
