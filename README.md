@@ -1,3 +1,9 @@
+# Usage
+1. ⚙ Configure the desired paramters in `.env`.
+2. ▶ Run `docker-compose up` 
+3. ⌛ Wait a bit: data preparation can take a while the first time.
+4. 🥳 Go to `localhost:8080` in your browser
+
 # Team Members
 - 01427811 Bulatovic Djordje
 - 01409784 Milasus Edzus
@@ -97,10 +103,7 @@ SPEED_MULTIPLIER=1
 
 # Use case
 
-1. ⚙ Configure the desired paramters in `.env`.
-2. ▶ Run `docker-compose up` 
-3. ⌛ Wait a bit: data preparation can take a while the first time.
-4. 🥳 Go to `localhost:8080` in your browser
+TODO: fill with uber use-case
 
 # Optimizations
 This section covers Task 5 (Stage 2).
