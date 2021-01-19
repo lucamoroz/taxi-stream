@@ -75,14 +75,7 @@ public class NotifySpeedingBolt extends BaseRichBolt {
             }
         }
 
-        if ((System.nanoTime() - lastThroughputMeasurementNs) > Numbers.THROUGHPUT_CADENCE_NS) {
-            this.outputCollector.emit("performance", new Values(nProcessedTuples));
-            nProcessedTuples = 0;
-            lastThroughputMeasurementNs = System.nanoTime();
-        } else {
-            nProcessedTuples++;
-        }
-
+        sendThroughputLog();
     }
 
     @Override
@@ -94,5 +87,17 @@ public class NotifySpeedingBolt extends BaseRichBolt {
     private void sendSpeedingMessageToDashboard( Boolean speeding, Integer taxiId){
 
         clientEndPoint.sendMessage("{\"taxi\":\"" + taxiId + "\",\"speeding\":"+ speeding.toString() + "}");
+    }
+
+    private void sendThroughputLog() {
+        if (!System.getenv("MODE").equals("DEBUG"))
+            return;
+        if ((System.nanoTime() - lastThroughputMeasurementNs) > Numbers.THROUGHPUT_CADENCE_NS) {
+            this.outputCollector.emit("performance", new Values(nProcessedTuples));
+            nProcessedTuples = 0;
+            lastThroughputMeasurementNs = System.nanoTime();
+        } else {
+            nProcessedTuples++;
+        }
     }
 }

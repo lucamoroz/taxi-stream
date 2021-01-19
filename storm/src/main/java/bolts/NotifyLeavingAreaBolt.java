@@ -88,13 +88,7 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
                 }
             }
 
-            if ((System.nanoTime() - lastThroughputMeasurementNs) > Numbers.THROUGHPUT_CADENCE_NS) {
-                this.outputCollector.emit("performance", new Values(nProcessedTuples));
-                nProcessedTuples = 0;
-                lastThroughputMeasurementNs = System.nanoTime();
-            } else {
-                nProcessedTuples++;
-            }
+            sendThroughputLog();
 
         }
     
@@ -110,6 +104,18 @@ public class NotifyLeavingAreaBolt extends BaseRichBolt {
     private void sendLeavingAreaMessageToDashboard( Boolean leavingArea, Integer taxiId){
         
         clientEndPoint.sendMessage("{\"taxi\":\"" + taxiId + "\",\"leavingArea\":"+ leavingArea.toString() + "}");
+    }
+
+    private void sendThroughputLog() {
+        if (!System.getenv("MODE").equals("DEBUG"))
+            return;
+        if ((System.nanoTime() - lastThroughputMeasurementNs) > Numbers.THROUGHPUT_CADENCE_NS) {
+            this.outputCollector.emit("performance", new Values(nProcessedTuples));
+            nProcessedTuples = 0;
+            lastThroughputMeasurementNs = System.nanoTime();
+        } else {
+            nProcessedTuples++;
+        }
     }
 
 }

@@ -56,6 +56,18 @@ public class CalculateSpeedBolt extends BaseRichBolt {
         lastLogs.put(taxiId, currentLog);
         _collector.ack(input);
 
+        sendThroughputLog();
+    }
+
+    @Override
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+        declarer.declare(new Fields("id", "speed", "timestamp"));
+        declarer.declareStream("performance", new Fields("throughput"));
+    }
+
+    private void sendThroughputLog() {
+        if (!System.getenv("MODE").equals("DEBUG"))
+            return;
         if ((System.nanoTime() - lastThroughputMeasurementNs) > Numbers.THROUGHPUT_CADENCE_NS) {
             this._collector.emit("performance", new Values(nProcessedTuples));
             nProcessedTuples = 0;
@@ -63,11 +75,5 @@ public class CalculateSpeedBolt extends BaseRichBolt {
         } else {
             nProcessedTuples++;
         }
-    }
-
-    @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("id", "speed", "timestamp"));
-        declarer.declareStream("performance", new Fields("throughput"));
     }
 }
