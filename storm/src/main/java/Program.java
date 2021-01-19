@@ -42,8 +42,16 @@ public class Program {
         topoBuilder.setBolt("notifySpeedingBolt", new NotifySpeedingBolt())
             .fieldsGrouping("calculateSpeedBolt", new Fields("id"));
 
-
-        //TODO: add notify Speeding Bolt from "Calculate Speed" bolt
+        if (System.getenv("MODE").equals("DEBUG")) {
+            topoBuilder.setBolt("throughputBolt", new ThroughputBolt(), 1)
+                    .setNumTasks(1)
+                    .shuffleGrouping("calculateSpeedBolt", "performance") // subscribe to "performance" stream
+                    .shuffleGrouping("averageSpeedBolt", "performance")
+                    .shuffleGrouping("calculateDistanceBolt", "performance")
+                    .shuffleGrouping("updateLocationBolt", "performance")
+                    .shuffleGrouping("notifyLeavingAreaBolt", "performance")
+                    .shuffleGrouping("notifySpeedingBolt", "performance");
+        }
 
         try {
             cluster = new LocalCluster();

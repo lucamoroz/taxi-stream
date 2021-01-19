@@ -7,4 +7,6 @@ public class Numbers {
     public static double LONG_BEIJING = 116.383331;
     public static double SPEED_LIMIT = 50;
 
+    // 0.1 seconds
+    public static long THROUGHPUT_CADENCE_NS = 100000000;
 }

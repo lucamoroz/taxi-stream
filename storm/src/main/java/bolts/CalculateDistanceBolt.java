@@ -6,10 +6,13 @@ import org.apache.storm.redis.common.config.JedisPoolConfig;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
+import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
+import org.apache.storm.tuple.Values;
 import redis.clients.jedis.JedisCommands;
 import utils.CoordinateHelper;
 import utils.Logger;
+import utils.Numbers;
 import utils.TaxiLog;
 
 import java.util.HashMap;
@@ -18,6 +21,8 @@ import java.util.Map;
 public class CalculateDistanceBolt extends AbstractRedisBolt {
     Map<Integer, Object[]> overallDistances = new HashMap<>();
     Logger logger;
+    long lastThroughputMeasurementNs = 0;
+    long nProcessedTuples = 0;
 
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext, OutputCollector collector) {
@@ -64,8 +69,24 @@ public class CalculateDistanceBolt extends AbstractRedisBolt {
             }
             this.collector.ack(input);
         }
+
+        sendThroughputLog();
     }
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) { }
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+        declarer.declareStream("performance", new Fields("throughput"));
+    }
+
+    private void sendThroughputLog() {
+        if (!System.getenv("MODE").equals("DEBUG"))
+            return;
+        if ((System.nanoTime() - lastThroughputMeasurementNs) > Numbers.THROUGHPUT_CADENCE_NS) {
+            this.collector.emit("performance", new Values(nProcessedTuples));
+            nProcessedTuples = 0;
+            lastThroughputMeasurementNs = System.nanoTime();
+        } else {
+            nProcessedTuples++;
+        }
+    }
 }

@@ -9,6 +9,7 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import utils.CoordinateHelper;
 import utils.Logger;
+import utils.Numbers;
 import utils.TaxiLog;
 
 import java.util.HashMap;
@@ -18,6 +19,8 @@ public class CalculateSpeedBolt extends BaseRichBolt {
     OutputCollector _collector;
     Map<Integer, TaxiLog> lastLogs = new HashMap<>();
     Logger logger;
+    long lastThroughputMeasurementNs = 0;
+    long nProcessedTuples = 0;
 
     @Override
     public void prepare(Map<String, Object> topoConf, TopologyContext context, OutputCollector collector) {
@@ -52,10 +55,25 @@ public class CalculateSpeedBolt extends BaseRichBolt {
         }
         lastLogs.put(taxiId, currentLog);
         _collector.ack(input);
+
+        sendThroughputLog();
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
         declarer.declare(new Fields("id", "speed", "timestamp"));
+        declarer.declareStream("performance", new Fields("throughput"));
+    }
+
+    private void sendThroughputLog() {
+        if (!System.getenv("MODE").equals("DEBUG"))
+            return;
+        if ((System.nanoTime() - lastThroughputMeasurementNs) > Numbers.THROUGHPUT_CADENCE_NS) {
+            this._collector.emit("performance", new Values(nProcessedTuples));
+            nProcessedTuples = 0;
+            lastThroughputMeasurementNs = System.nanoTime();
+        } else {
+            nProcessedTuples++;
+        }
     }
 }

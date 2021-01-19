@@ -1,7 +1,7 @@
 # Team Members
 - 01427811 Bulatovic Djordje
 - 01409784 Milasus Edzus
-- Moroldo Luca
+- 12016307 Moroldo Luca
 - 01634877 Riegler Maximilian
 - 01650767 Wolkowitsch Manuel 
 
@@ -53,7 +53,7 @@
     - Redis-Backend integration (Keyspace notifications sub)
     - Storm DistanceBolt
     - Storm throughput measurement
-    - Storm AverageSpeedBolt optimization (incremental average calculation)
+    - Storm performance optimiztion
 
 - Edzus Milasus
     - Storm setup
@@ -71,6 +71,7 @@ Create a .env file containing the variables:
 - `TAXI_DATASET`: the value must be the path to the directory containing the taxi logs.
 - `MAX_TAXIS`: maximum number of distinct taxis that will be emitted by the data provider (`-1` to disable).
 - `SPEED_MULTIPLIER`: changes the emission speed of the data provider. With `SPEED_MULTIPLIER=2` the emission speed is doubled.
+- (optional) `MODE=DEBUG` to enable Storm throughput measurement
 
 For example, if your dataset is located at `/aic/g1`, create the following `.env` file in the project root directory:
 ```
@@ -106,7 +107,7 @@ This section covers Task 5 (Stage 2).
 
 The following optimizations have been applied:
 
-1. The average speed bolt computes the incremental average speed, using O(1) memory per taxi.
+1. The average speed bolt computes the incremental average speed, using O(1) memory per taxi. (+2% throughput)
 2. ...
 
 ## Results
