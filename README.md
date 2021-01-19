@@ -1,6 +1,6 @@
 # Team Members
 - 01427811 Bulatovic Djordje
-- Milasus Edzus
+- 01409784 Milasus Edzus
 - Moroldo Luca
 - 01634877 Riegler Maximilian
 - 01650767 Wolkowitsch Manuel 
@@ -54,6 +54,15 @@
     - Storm DistanceBolt
     - Storm throughput measurement
     - Storm AverageSpeedBolt optimization (incremental average calculation)
+
+- Edzus Milasus
+    - Storm setup
+    - Stateful Bolt implementation option analysis
+    - Notify Speeding Bolt implementation
+    - Notify Leaving Area Bolt implementation
+    - Kafka Spout integration
+    - Websocket implementation for Notify Bolts
+    - Performance optimization and metrics
 
 # Configuration
 
