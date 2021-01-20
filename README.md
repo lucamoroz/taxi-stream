@@ -92,7 +92,12 @@ This section covers Task 5 (Stage 2).
 The following optimizations have been applied:
 
 1. The average speed bolt computes the incremental average speed, using O(1) memory per taxi. (+2% throughput)
-2. ...
+
+2. We have tried to make a separate Bolt (StoreToRedisBolt) which stores the values to Redis. The point of the optimization
+would be that this task was repetitive inside 3 Bolts (AverageSpeedBolt, CalculateDistanceBolt and UpdateLocationBolt).
+We sent data from these Bolts into our new Bolt that stores the data to Redis, but we did not reach an optimization. The
+average processing time of these bolts was 13,33888178(optimized) comparing to 11,76568502(unoptimized). Based on the
+data we collected we agreed to remove this extra Bolt.
 
 ## Results
 The results on the throughput and the processing time are the following:
