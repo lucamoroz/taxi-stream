@@ -87,19 +87,14 @@ SPEED_MULTIPLIER=1
 One basic use-case for this application would be the monitoring of a vehicle fleet for a company like Uber. Each Uber driver relies heavily on the smartphone to provide them with pickup jobs and to display them the most efficient routes to take. The positional data can then be taken from each app and published into the kafka server that acts as a spout for the storm topology. While traversing through the topology this data is used in many different calculations that are then later displayed at the monitoring dashboard. Here the company can see each drivers location on a map, how many drivers there are in total and the total distance that has been driven. In addition, it shows notifications for drivers that left a certain radius from a specific center point and if someone exceeds a given speed limit. This dashboard can be a useful tool for companies like Uber to quickly evaluate e.g. the total coverage of a city and can help penalizing drivers that drive too fast and therefore provide a risk for the company.
 
 # Optimizations
-This section covers Task 5 (Stage 2).
+We measured the throughput and the processing time of the bolts. We took following measures:
 
-The following optimizations have been applied:
+ * The average speed bolt computes the incremental average speed, using O(1) memory per taxi. (+2% throughput)
 
-1. The average speed bolt computes the incremental average speed, using O(1) memory per taxi. (+2% throughput)
-
-2. We have tried to make a separate Bolt (StoreToRedisBolt) which stores the values to Redis. The point of the optimization
+ * We have tried to make a separate Bolt (StoreToRedisBolt) which stores the values to Redis. The point of the optimization
 would be that this task was repetitive inside 3 Bolts (AverageSpeedBolt, CalculateDistanceBolt and UpdateLocationBolt).
 We sent data from these Bolts into our new Bolt that stores the data to Redis, but we did not reach an optimization. The
-average processing time of these bolts was 13,33888178(optimized) comparing to 11,76568502(unoptimized). Based on the
-data we collected we agreed to remove this extra Bolt.
+average processing time of these bolts was not improved, therefore based on the data we collected we agreed to remove 
+this extra Bolt.
+   
 
-## Results
-The results on the throughput and the processing time are the following:
-- Throughput: from ... to ...
-- Processing time: 
