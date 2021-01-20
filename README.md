@@ -12,37 +12,19 @@
 - 01650767 Wolkowitsch Manuel 
 
 # Work Distribution
-- Docker setup
-    - Maximilian Riegler
-    - Djordje Bulatovic
-- Storm setup
-    - Manuel Wolkowitsch
-    - Maximilian Riegler
-    - Djordje Bulatovic
-- AverageSpeedBolt
-- CalculateDistanceBolt
-    - Maximilian Riegler
-- CalculateSpeedBolt
-    - Manuel Wolkowitsch
-    - Maximilian Riegler
-- NotifyLeavingAreaBolt
-- NotifySpeedingBolt
-- UpdateLocationBolt
-- Data preparation and emission
-- Kafka spout
-    - Maximilian Riegler
-    - Djordje Bulatovic
-- Redis setup
-- Redis dashboard integration
-- NotifyBolt dashboard integration
-    - Djordje Bulatovic
-- Dashboard
-    - Manuel Wolkowitsch
-    - Maximilian Riegler
-- Performance metrics
-    - Djordje Bulatovic
-- Performance optimizations
-    - Djordje Bulatovic
+- Maximilian Riegler
+    - Docker setup
+    - Storm setup
+    - Integration of Kafka spout into storm topology
+    - CalculateDistanceBolt
+    - CalculateSpeedBolt
+    - Dashboard (supporting Manuel Wolkowitsch)
+
+- Manuel Wolkowitsch
+    - Docker setup
+    - Storm setup
+    - CalculateSpeedBolt
+    - Majority of dashboard (backend and frontend)
 
 - Djordje Bulatovic
     - Docker setup
