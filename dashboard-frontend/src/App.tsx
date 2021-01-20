@@ -13,6 +13,7 @@ export const App = () => {
     speeding: [],
     leaving: [],
     overallDistances: {},
+      averageSpeeds: {},
     bannedTaxis: []
   });
   const [error, setError] = useState<boolean>(false);
@@ -67,7 +68,8 @@ export const App = () => {
             >
               <Popup>
                 Taxi: {taxi}<br/>
-                Distance to center: {calculateDistanceToBeijingCenter(location[0], location[1])}
+                Distance to center: {calculateDistanceToBeijingCenter(location[0], location[1])}<br />
+                Average speed: {state.averageSpeeds[taxi].toFixed(2) + "km/h"}
               </Popup>
             </Marker>
           ))}

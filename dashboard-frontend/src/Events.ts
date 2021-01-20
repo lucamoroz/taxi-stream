@@ -4,6 +4,7 @@ export interface MovingEvent{
   taxi: string;
   location?: string;
   overall_distance?: string;
+  average_speed?: string;
   type: "moving";
 }
 export interface SpeedingEvent{

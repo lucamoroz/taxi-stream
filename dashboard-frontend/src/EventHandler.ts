@@ -8,6 +8,7 @@ export type OverallDistances = {[taxi: string]: number};
 export interface ApplicationState{
   locations: Locations,
   overallDistances: OverallDistances,
+  averageSpeeds: Record<string, number>,
   leaving: string[],
   speeding: string[],
   bannedTaxis: string[]
@@ -25,7 +26,6 @@ export const processEvents = (immutableState: ApplicationState) => {
 }
 
 export const processEvent = (event: TaxiEvent, state: ApplicationState) => {
-
   if(state.bannedTaxis.includes(event.taxi)) return;
 
   if(event.type === 'moving'){
@@ -41,6 +41,10 @@ export const processEvent = (event: TaxiEvent, state: ApplicationState) => {
         state.speeding = state.speeding.filter(taxi => taxi !== event.taxi);
       }else{
         state.bannedTaxis = state.bannedTaxis.filter(taxi => taxi !== event.taxi);
+      }
+
+      if (event.average_speed) {
+        state.averageSpeeds[event.taxi] = +event.average_speed;
       }
     }
     if(event.overall_distance){
