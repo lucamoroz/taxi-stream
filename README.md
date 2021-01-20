@@ -97,4 +97,3 @@ We sent data from these Bolts into our new Bolt that stores the data to Redis, b
 average processing time of these bolts was not improved, therefore based on the data we collected we agreed to remove 
 this extra Bolt.
    
-
