@@ -96,4 +96,6 @@ would be that this task was repetitive inside 3 Bolts (AverageSpeedBolt, Calcula
 We sent data from these Bolts into our new Bolt that stores the data to Redis, but we did not reach an optimization. The
 average processing time of these bolts was not improved, therefore based on the data we collected we agreed to remove 
 this extra Bolt.
+
+The maximum emission speed that the implementation can handle, running on a Dell XPS 15 9570 laptop, is 80.
    
