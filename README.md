@@ -1,3 +1,5 @@
+This project realizes a monitoring dashboard, which is updated in real-time based on spatial streaming data obtained from IoT devices. To provide information in real-time, data is processed by a sequence of different stream processing operators, such as filters and aggregators. These individual stream processing operators form a stream processing topology. For a more detailed description, please refer to the file Assignment.pdf.
+
 # Usage
 1. ⚙ Configure the desired paramters in `.env`.
 2. ▶ Run `docker-compose up` 
@@ -5,11 +7,11 @@
 4. 🥳 Go to `localhost:8080` in your browser
 
 # Team Members
-- 01427811 Bulatovic Djordje
-- 01409784 Milasus Edzus
-- 12016307 Moroldo Luca
-- 01634877 Riegler Maximilian
-- 01650767 Wolkowitsch Manuel 
+- Bulatovic Djordje
+- Milasus Edzus
+- Moroldo Luca
+- Riegler Maximilian
+- Wolkowitsch Manuel 
 
 # Work Distribution
 - Maximilian Riegler
